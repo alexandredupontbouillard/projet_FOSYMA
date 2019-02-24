@@ -39,8 +39,7 @@ public class ExploreMultiAgent extends AbstractDedaleAgent {
 	protected void setup(){
 
 		super.setup();
-		
-
+		myMap = new MapRepresentation();
 		List<Behaviour> lb=new ArrayList<Behaviour>();
 		
 		final Object[] args = getArguments();
@@ -50,7 +49,7 @@ public class ExploreMultiAgent extends AbstractDedaleAgent {
 			
 			x= new ExploMultiBehaviour(this,this.myMap,agentNames);
 			lb.add(x);
-			lb.add(new ExploMultiReceiveBehaviour(this,myMap));
+			lb.add(new ExploMultiReceiveBehaviour(this,this.myMap));
 		}
 		
 	

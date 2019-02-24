@@ -114,16 +114,16 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 			}
 		}
 		m.add(myPosition);
-		msg.setContent("CLASSIQUE");
-		try {
+		msg.setProtocol("CLASSIQUE");;
+		/*try {
 			msg.setContentObject( (Serializable) m);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 		
 		
-		//((AbstractDedaleAgent)this.myAgent).sendMessage(msg);
+		((AbstractDedaleAgent)this.myAgent).sendMessage(msg);
 		
 	}
 	public void interblocageMessage() {
@@ -135,7 +135,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 			Couple<List<Couple<String,String>>,List<Couple<String,String>>> c = new Couple<List<Couple<String,String>>,List<Couple<String,String>>>(list_Nodes,list_edges);
 			
 			
-			msg.setContent("INTERBLOCAGE");
+			msg.setProtocol("INTERBLOCAGE");
 			msg.setContentObject(c);
 			
 		} catch (IOException e1) {
@@ -161,7 +161,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 		if (myPosition!=null){
 			
 			List<Couple<String,List<Couple<Observation,Integer>>>> lobs=((AbstractDedaleAgent)this.myAgent).observe();//myPosition
-			sendClassicMessage(lobs,myPosition);
+			//sendClassicMessage(lobs,myPosition);
 			try {
 				this.myAgent.doWait(500);
 			} catch (Exception e) {
@@ -213,7 +213,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 
 		}
 		if(interblocage){
-			interblocageMessage();
+			//interblocageMessage();
 		}
 			
 		
