@@ -11,6 +11,7 @@ import java.util.Set;
 import dataStructures.tuple.Couple;
 import eu.su.mas.dedale.env.Observation;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
+import eu.su.mas.dedaleEtu.mas.agents.dummies.ExploreMultiAgent;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation.MapAttribute;
 import jade.core.AID;
@@ -46,7 +47,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 	/**
 	 * Nodes known but not yet visited
 	 */
-	private List<String> openNodes;
+	private ArrayList<String> openNodes;
 	/**
 	 * Visited nodes
 	 */
@@ -115,12 +116,12 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 		}
 		m.add(myPosition);
 		msg.setProtocol("CLASSIQUE");;
-		/*try {
+		try {
 			msg.setContentObject( (Serializable) m);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
+		}
 		
 		
 		((AbstractDedaleAgent)this.myAgent).sendMessage(msg);
@@ -136,22 +137,30 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 			
 			
 			msg.setProtocol("INTERBLOCAGE");
-			msg.setContentObject(c);
+			msg.setContentObject((Serializable) c);
+			for(int i =0;i<agentNames.size();i++) {
+				if(! agentNames.get(i).equals(myAgent.getAID().getName())) {
+					msg.addReceiver(new AID(agentNames.get(i),AID.ISLOCALNAME));
+				}
+			}
+			((AbstractDedaleAgent)this.myAgent).sendMessage(msg);
 			
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		((AbstractDedaleAgent)this.myAgent).sendMessage(msg);
+		
+		
 		interblocage=false;
 	}
 	
 
 	@Override
-	public void action() {
+	public synchronized void action() {
 		interblocage=false;
 		if(this.myMap==null)
 			this.myMap= new MapRepresentation();
+			((ExploreMultiAgent) this.myAgent).setMap(myMap);
 		
 		//0) Retrieve the current position
 		String myPosition=((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
@@ -161,7 +170,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 		if (myPosition!=null){
 			
 			List<Couple<String,List<Couple<Observation,Integer>>>> lobs=((AbstractDedaleAgent)this.myAgent).observe();//myPosition
-			//sendClassicMessage(lobs,myPosition);
+			
 			try {
 				this.myAgent.doWait(500);
 			} catch (Exception e) {
@@ -205,7 +214,8 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 				if (nextNode==null){
 					//no directly accessible openNode
 					//chose one, compute the path and take the first step.
-					nextNode=this.myMap.getShortestPath(myPosition, this.openNodes.get(0)).get(0);
+					//nextNode=this.myMap.getShortestPath(myPosition, this.openNodes.get(0)).get(0);
+					nextNode=this.myMap.getShortestPathToClosestNode(myPosition, openNodes).get(0);
 				}
 				interblocage = !((AbstractDedaleAgent)this.myAgent).moveTo(nextNode);
 			
@@ -213,7 +223,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 
 		}
 		if(interblocage){
-			//interblocageMessage();
+			interblocageMessage();
 		}
 			
 		

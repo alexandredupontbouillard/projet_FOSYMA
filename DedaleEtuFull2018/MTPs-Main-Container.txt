@@ -1,1 +1,1 @@
-http://LAPTOP-QHJ2VGIK.lan:7778/acc
+http://LAPTOP-QHJ2VGIK:7778/acc

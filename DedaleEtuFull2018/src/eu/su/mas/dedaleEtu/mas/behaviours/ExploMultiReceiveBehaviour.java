@@ -31,10 +31,12 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 		 * @param myagent
 		 */
 		private MapRepresentation myMap;
-		public ExploMultiReceiveBehaviour(final ExploreMultiAgent myagent,MapRepresentation mymap) {
+		public ExploMultiReceiveBehaviour(final ExploreMultiAgent myagent) {
 			super(myagent);
-			this.myMap = mymap;
 			this.myagent=myagent;
+		}
+		public void setMap(MapRepresentation map) {
+			myMap = map;
 		}
 		public void messageClassique(List<String> content) {
 			String closedNode=content.get(content.size()-1);
@@ -62,7 +64,7 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 			List<String> closed = new ArrayList();
 			for(int i =0; i<nodes.size();i++) {
 				if(nodes.get(i).getRight().equals(("closed"))) {
-					myMap.addNode(nodes.get(i).getLeft(),null);
+					myMap.addNode(nodes.get(i).getLeft());
 					closed.add(nodes.get(i).getLeft());
 				}
 				else {
@@ -81,11 +83,11 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 			
 			final MessageTemplate msgTemplate = MessageTemplate.MatchPerformative(ACLMessage.INFORM);			
 			final ACLMessage msg = this.myAgent.receive(msgTemplate);
-			if (msg != null) {		
+			if (msg != null) {
 				if(msg.getProtocol().equals("CLASSIQUE")) {
 					try {
 						List<String> content =(ArrayList<String>) msg.getContentObject();
-						//messageClassique(content);
+						messageClassique(content);
 						
 
 					} catch (UnreadableException e) {
@@ -94,10 +96,9 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 					}
 				}
 				else if(msg.getProtocol().equals("INTERBLOCAGE")) {
-					
 					try {
 						Couple<List<Couple<String,String>>,List<Couple<String,String>>> c = (Couple<List<Couple<String,String>>,List<Couple<String,String>>>) msg.getContentObject();
-						//messageInterblocage(c);
+						messageInterblocage(c);
 					} catch (UnreadableException e) {
 						
 						e.printStackTrace();

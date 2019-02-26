@@ -34,12 +34,13 @@ public class ExploreMultiAgent extends AbstractDedaleAgent {
 	 *          
 	 */
 	private ExploMultiBehaviour x;
+	private ExploMultiReceiveBehaviour y;
 	
 	private List<String> agentNames;
 	protected void setup(){
 
 		super.setup();
-		myMap = new MapRepresentation();
+		
 		List<Behaviour> lb=new ArrayList<Behaviour>();
 		
 		final Object[] args = getArguments();
@@ -48,8 +49,10 @@ public class ExploreMultiAgent extends AbstractDedaleAgent {
 			agentNames = (ArrayList<String>) args[2];
 			
 			x= new ExploMultiBehaviour(this,this.myMap,agentNames);
+			
+			y=new ExploMultiReceiveBehaviour(this);
+			lb.add(y);
 			lb.add(x);
-			lb.add(new ExploMultiReceiveBehaviour(this,this.myMap));
 		}
 		
 	
@@ -68,6 +71,10 @@ public class ExploreMultiAgent extends AbstractDedaleAgent {
 	}
 	public void maj(List<String> open, List<String> closed) {
 		x.maj(open, closed);
+	}
+	public void setMap(MapRepresentation map) {
+		myMap = map;
+		y.setMap(myMap);
 	}
 	
 	

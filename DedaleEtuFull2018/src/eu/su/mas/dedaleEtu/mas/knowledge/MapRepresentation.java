@@ -170,4 +170,33 @@ public class MapRepresentation implements Serializable {
 		shortestPath.remove(0);//remove the current position
 		return shortestPath;
 	}
+	public List<String> getShortestPathToClosestNode(String idFrom, List<String> openNodes){
+		List<String> shortestPath=new ArrayList<String>();
+
+		Dijkstra dijkstra = new Dijkstra();//number of edge
+		dijkstra.init(g);
+		dijkstra.setSource(g.getNode(idFrom));
+		dijkstra.compute();//compute the distance to all nodes from idFrom
+		Double paths_sizes=dijkstra.getPathLength(g.getNode(openNodes.get(0)));
+		int index=0;
+		Double m;
+		// on cherche le noeud ouvert le plus proche
+		for(int i =1 ; i<openNodes.size();i++) {
+			m=dijkstra.getPathLength(g.getNode(openNodes.get(i)));
+			if(paths_sizes > m ) {
+				paths_sizes = m;
+				index = i;
+			}
+		}
+		List<Node> path=dijkstra.getPath(g.getNode(openNodes.get(index))).getNodePath(); 
+
+		Iterator<Node> iter=path.iterator();
+		while (iter.hasNext()){
+			shortestPath.add(iter.next().getId());
+		}
+		dijkstra.clear();
+		shortestPath.remove(0);//remove the current position
+		return shortestPath;
+		
+	}
 }
