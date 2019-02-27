@@ -42,7 +42,14 @@ public class MapRepresentation implements Serializable {
 	private String nodeStyle_open = "node.agent {"+"fill-color: forestgreen;"+"}";
 	private String nodeStyle_agent = "node.open {"+"fill-color: blue;"+"}";
 	private String nodeStyle=defaultNodeStyle+nodeStyle_agent+nodeStyle_open;
-
+	private boolean observation = true;
+	
+	public boolean is_complete() {
+		return !observation;
+	}
+	public void set_complete() {
+		observation = false;
+	}
 	
 	public MapRepresentation() {
 		System.setProperty("org.graphstream.ui.renderer","org.graphstream.ui.j2dviewer.J2DGraphRenderer");

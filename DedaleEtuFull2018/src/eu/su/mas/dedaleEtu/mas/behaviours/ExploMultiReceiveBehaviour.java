@@ -23,14 +23,14 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 		private static final long serialVersionUID = 9088209402507795289L;
 
 		private boolean finished=false;
-		private ExploreMultiAgent myagent;
+		protected ExploreMultiAgent myagent;
 		/**
 		 * 
 		 * This behaviour is a one Shot.
 		 * It receives a message tagged with an inform performative, print the content in the console and destroy itlself
 		 * @param myagent
 		 */
-		private MapRepresentation myMap;
+		protected MapRepresentation myMap;
 		public ExploMultiReceiveBehaviour(final ExploreMultiAgent myagent) {
 			super(myagent);
 			this.myagent=myagent;
@@ -79,35 +79,40 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 			myagent.maj(open, closed);
 		}
 
-		public void action() {
-			
-			final MessageTemplate msgTemplate = MessageTemplate.MatchPerformative(ACLMessage.INFORM);			
-			final ACLMessage msg = this.myAgent.receive(msgTemplate);
-			if (msg != null) {
-				if(msg.getProtocol().equals("CLASSIQUE")) {
-					try {
-						List<String> content =(ArrayList<String>) msg.getContentObject();
-						messageClassique(content);
+		public synchronized void action() {
+			if(myMap!=null) {
+				if(!myMap.is_complete()) {
+					final MessageTemplate msgTemplate = MessageTemplate.MatchPerformative(ACLMessage.INFORM);			
+					final ACLMessage msg = this.myAgent.receive(msgTemplate);
+					if (msg != null) {
+						if(msg.getProtocol().equals("CLASSIQUE")) {
+							System.out.println("CLASSIQUE");
+							try {
+								List<String> content =(ArrayList<String>) msg.getContentObject();
+								messageClassique(content);
+								
+		
+							} catch (UnreadableException e) {
+								
+								e.printStackTrace();
+							}
+						}
+						else if(msg.getProtocol().equals("INTERBLOCAGE")) {
+							System.out.println("INTERBLOCAGE");
+							try {
+								Couple<List<Couple<String,String>>,List<Couple<String,String>>> c = (Couple<List<Couple<String,String>>,List<Couple<String,String>>>) msg.getContentObject();
+								messageInterblocage(c);
+							} catch (UnreadableException e) {
+								
+								e.printStackTrace();
+							}
+						}	
 						
-
-					} catch (UnreadableException e) {
-						
-						e.printStackTrace();
+					}
+					else{
+							block();
 					}
 				}
-				else if(msg.getProtocol().equals("INTERBLOCAGE")) {
-					try {
-						Couple<List<Couple<String,String>>,List<Couple<String,String>>> c = (Couple<List<Couple<String,String>>,List<Couple<String,String>>>) msg.getContentObject();
-						messageInterblocage(c);
-					} catch (UnreadableException e) {
-						
-						e.printStackTrace();
-					}
-				}	
-				
-			}
-			else{
-					block();
 			}
 		}
 

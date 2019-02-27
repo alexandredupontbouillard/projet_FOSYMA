@@ -23,7 +23,7 @@ import jade.core.behaviours.Behaviour;
 public class ExploreMultiAgent extends AbstractDedaleAgent {
 
 	private static final long serialVersionUID = -6431752665590433727L;
-	private MapRepresentation myMap;
+	protected MapRepresentation myMap;
 	
 
 	/**
@@ -33,10 +33,10 @@ public class ExploreMultiAgent extends AbstractDedaleAgent {
 	 *	 		2) add the behaviours
 	 *          
 	 */
-	private ExploMultiBehaviour x;
-	private ExploMultiReceiveBehaviour y;
+	protected ExploMultiBehaviour x;
+	protected ExploMultiReceiveBehaviour y;
 	
-	private List<String> agentNames;
+	protected List<String> agentNames;
 	protected void setup(){
 
 		super.setup();

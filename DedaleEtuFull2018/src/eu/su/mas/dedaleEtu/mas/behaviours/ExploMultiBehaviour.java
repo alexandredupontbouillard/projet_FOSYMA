@@ -42,18 +42,18 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 	/**
 	 * Current knowledge of the agent regarding the environment
 	 */
-	private MapRepresentation myMap;
+	protected MapRepresentation myMap;
 
 	/**
 	 * Nodes known but not yet visited
 	 */
-	private ArrayList<String> openNodes;
+	protected ArrayList<String> openNodes;
 	/**
 	 * Visited nodes
 	 */
-	private Set<String> closedNodes;
-	private List<String> agentNames;
-
+	protected Set<String> closedNodes;
+	protected List<String> agentNames;
+	
 	public ExploMultiBehaviour(final AbstractDedaleAgent myagent, MapRepresentation myMap,List<String> agentNames) {
 		super(myagent);
 		this.myMap=myMap;
@@ -160,74 +160,77 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 		interblocage=false;
 		if(this.myMap==null)
 			this.myMap= new MapRepresentation();
-			((ExploreMultiAgent) this.myAgent).setMap(myMap);
-		
-		//0) Retrieve the current position
-		String myPosition=((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
-		
-		
-		
-		if (myPosition!=null){
+		if(!myMap.is_complete()) {
 			
-			List<Couple<String,List<Couple<Observation,Integer>>>> lobs=((AbstractDedaleAgent)this.myAgent).observe();//myPosition
+				((ExploreMultiAgent) this.myAgent).setMap(myMap);
 			
-			try {
-				this.myAgent.doWait(500);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-
-			//1) remove the current node from openlist and add it to closedNodes.
-			this.closedNodes.add(myPosition);
-			this.openNodes.remove(myPosition);
-
-			this.myMap.addNode(myPosition);
-
-			//2) get the surrounding nodes and, if not in closedNodes, add them to open nodes.
-			String nextNode=null;
-			Iterator<Couple<String, List<Couple<Observation, Integer>>>> iter=lobs.iterator();
-			while(iter.hasNext()){
-				String nodeId=iter.next().getLeft();
-				if (!this.closedNodes.contains(nodeId)){
-					if (!this.openNodes.contains(nodeId)){
-						this.openNodes.add(nodeId);
-						this.myMap.addNode(nodeId, MapAttribute.open);
-						this.myMap.addEdge(myPosition, nodeId);	
-					}else{
-						//the node exist, but not necessarily the edge
-						this.myMap.addEdge(myPosition, nodeId);
-					}
-					if (nextNode==null) nextNode=nodeId;
+			//0) Retrieve the current position
+			String myPosition=((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
+			if (myPosition!=null){
+				
+				List<Couple<String,List<Couple<Observation,Integer>>>> lobs=((AbstractDedaleAgent)this.myAgent).observe();//myPosition
+				sendClassicMessage(lobs,myPosition);
+				try {
+					this.myAgent.doWait(500);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
+				
+	
+				//1) remove the current node from openlist and add it to closedNodes.
+				this.closedNodes.add(myPosition);
+				this.openNodes.remove(myPosition);
+	
+				this.myMap.addNode(myPosition);
+	
+				deplacement_explo(lobs,myPosition);
 			}
-
-			//3) while openNodes is not empty, continues.
-			if (this.openNodes.isEmpty()){
-				//Explo finished
-				finished=true;
-				System.out.println("Exploration successufully done, behaviour removed.");
-			}else{
-				//4) select next move.
-				//4.1 If there exist one open node directly reachable, go for it,
-				//	 otherwise choose one from the openNode list, compute the shortestPath and go for it
-				if (nextNode==null){
-					//no directly accessible openNode
-					//chose one, compute the path and take the first step.
-					//nextNode=this.myMap.getShortestPath(myPosition, this.openNodes.get(0)).get(0);
-					nextNode=this.myMap.getShortestPathToClosestNode(myPosition, openNodes).get(0);
-				}
-				interblocage = !((AbstractDedaleAgent)this.myAgent).moveTo(nextNode);
-			
+			if(interblocage){
+				interblocageMessage();
 			}
-
-		}
-		if(interblocage){
-			interblocageMessage();
 		}
 			
 		
 		
+	}
+	public void deplacement_explo(List<Couple<String,List<Couple<Observation,Integer>>>> lobs,String myPosition) {
+		//2) get the surrounding nodes and, if not in closedNodes, add them to open nodes.
+		String nextNode=null;
+		Iterator<Couple<String, List<Couple<Observation, Integer>>>> iter=lobs.iterator();
+		while(iter.hasNext()){
+			String nodeId=iter.next().getLeft();
+			if (!this.closedNodes.contains(nodeId)){
+				if (!this.openNodes.contains(nodeId)){
+					this.openNodes.add(nodeId);
+					this.myMap.addNode(nodeId, MapAttribute.open);
+					this.myMap.addEdge(myPosition, nodeId);	
+				}else{
+					//the node exist, but not necessarily the edge
+					this.myMap.addEdge(myPosition, nodeId);
+				}
+				if (nextNode==null) nextNode=nodeId;
+			}
+		}
+
+		//3) while openNodes is not empty, continues.
+		if (this.openNodes.isEmpty()){
+			myMap.set_complete();
+			finished=true;
+			System.out.println("Exploration successufully done, behaviour removed.");
+		}else{
+			//4) select next move.
+			//4.1 If there exist one open node directly reachable, go for it,
+			//	 otherwise choose one from the openNode list, compute the shortestPath and go for it
+			if (nextNode==null){
+				//no directly accessible openNode
+				//chose one, compute the path and take the first step.
+				//nextNode=this.myMap.getShortestPath(myPosition, this.openNodes.get(0)).get(0);
+				nextNode=this.myMap.getShortestPathToClosestNode(myPosition, openNodes).get(0);
+			}
+			interblocage = !((AbstractDedaleAgent)this.myAgent).moveTo(nextNode);
+		
+		}
+
 	}
 
 	@Override
