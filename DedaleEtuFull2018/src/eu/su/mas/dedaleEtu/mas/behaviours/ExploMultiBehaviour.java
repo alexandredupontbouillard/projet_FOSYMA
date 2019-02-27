@@ -169,7 +169,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 			if (myPosition!=null){
 				
 				List<Couple<String,List<Couple<Observation,Integer>>>> lobs=((AbstractDedaleAgent)this.myAgent).observe();//myPosition
-				sendClassicMessage(lobs,myPosition);
+				//sendClassicMessage(lobs,myPosition);
 				try {
 					this.myAgent.doWait(500);
 				} catch (Exception e) {
@@ -182,8 +182,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 				this.openNodes.remove(myPosition);
 	
 				this.myMap.addNode(myPosition);
-	
-				deplacement_explo(lobs,myPosition);
+				if(lobs!=null) deplacement_explo(lobs,myPosition);
 			}
 			if(interblocage){
 				interblocageMessage();
