@@ -14,9 +14,11 @@ public class AgentDeverouilleurReceiveBehaviour extends ExploMultiReceiveBehavio
 		this.myagent=myagent;
 	}
 	public void action() {
-		if(! this.myMap.is_complete()) {
-			super.action();
-	
+		if(this.myMap!=null) {
+			if(! this.myMap.is_complete()) {
+				super.action();
+		
+			}
 		}
 	}
 }

@@ -86,7 +86,6 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 					final ACLMessage msg = this.myAgent.receive(msgTemplate);
 					if (msg != null) {
 						if(msg.getProtocol().equals("CLASSIQUE")) {
-							System.out.println("CLASSIQUE");
 							try {
 								List<String> content =(ArrayList<String>) msg.getContentObject();
 								messageClassique(content);
@@ -98,7 +97,6 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 							}
 						}
 						else if(msg.getProtocol().equals("INTERBLOCAGE")) {
-							System.out.println("INTERBLOCAGE");
 							try {
 								Couple<List<Couple<String,String>>,List<Couple<String,String>>> c = (Couple<List<Couple<String,String>>,List<Couple<String,String>>>) msg.getContentObject();
 								messageInterblocage(c);

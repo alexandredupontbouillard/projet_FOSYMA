@@ -9,8 +9,10 @@ public class AgentRecolteurReceiveBehaviour extends ExploMultiReceiveBehaviour{
 		this.myagent=myagent;
 	}
 	public void action() {
-		if(! this.myMap.is_complete()) {
-			super.action();
+		if(this.myMap!=null) {
+			if(! this.myMap.is_complete()) {
+				super.action();
+			}
 		}
 	}
 }

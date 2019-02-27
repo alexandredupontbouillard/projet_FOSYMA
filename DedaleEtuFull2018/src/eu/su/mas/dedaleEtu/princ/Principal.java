@@ -20,6 +20,8 @@ import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
 import org.junit.Assert;
+
+import concreteAgent.AgentRecolteur;
 import jade.wrapper.AgentContainer;
 
 
