@@ -12,6 +12,7 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.ui.view.Viewer;
+import java.util.Date;
 
 import dataStructures.tuple.Couple;
 
@@ -50,6 +51,8 @@ public class MapRepresentation implements Serializable {
 	public void set_complete() {
 		observation = false;
 	}
+	//https://www.jmdoudoux.fr/java/dej/chap-utilisation_dates.htm
+	
 	
 	public MapRepresentation() {
 		System.setProperty("org.graphstream.ui.renderer","org.graphstream.ui.j2dviewer.J2DGraphRenderer");
@@ -93,7 +96,7 @@ public class MapRepresentation implements Serializable {
 	 * @param id
 	 * @param mapAttribute
 	 */
-	public void addNode(String id,MapAttribute mapAttribute){
+	public void addNode(String id,MapAttribute mapAttribute,Tresor t,Date d){
 		Node n;
 		String s;
 		if(mapAttribute == null) {
@@ -118,6 +121,11 @@ public class MapRepresentation implements Serializable {
 		
 		
 		n.addAttribute("ui.label",id);
+		Date x =(Date)n.getAttribute("date");
+		if(x.before(d)){
+			n.addAttribute("date", d);
+			n.addAttribute("tresor", t);
+		}
 	}
 	public boolean containNode(String node) {
 

@@ -19,6 +19,9 @@ import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import java.util.Date;
+
+
 
 
 /**
@@ -201,7 +204,8 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 			if (!this.closedNodes.contains(nodeId)){
 				if (!this.openNodes.contains(nodeId)){
 					this.openNodes.add(nodeId);
-					this.myMap.addNode(nodeId, MapAttribute.open);
+					this.myMap.addNode(nodeId, MapAttribute.open, null, new Date());
+					
 					this.myMap.addEdge(myPosition, nodeId);	
 				}else{
 					//the node exist, but not necessarily the edge
