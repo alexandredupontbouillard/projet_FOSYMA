@@ -37,7 +37,7 @@ import jade.wrapper.AgentContainer;
  */
 public class Principal {
 
-
+//
 	private static HashMap<String, ContainerController> containerList=new HashMap<String, ContainerController>();// container's name - container's ref
 	private static List<AgentController> agentList;// agents's ref
 	private static Runtime rt;	

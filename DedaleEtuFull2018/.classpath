@@ -28,12 +28,8 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/DedaleEtuFull2018/libs/tools/tools-doc.zip!/tools/doc"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="libs/dedale/dedale-0.0.1-SNAPSHOT.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/DedaleEtuFull2018/libs/dedale/dedale-doc.zip!/doc"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="libs/delta/delta-mas.jar"/>
 	<classpathentry kind="lib" path="libs/junit/junit-4.12.jar"/>
+	<classpathentry kind="lib" path="libs/dedale/dedale.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
