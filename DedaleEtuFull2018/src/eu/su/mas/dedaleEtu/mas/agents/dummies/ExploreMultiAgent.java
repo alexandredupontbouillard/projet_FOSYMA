@@ -9,6 +9,7 @@ import eu.su.mas.dedaleEtu.mas.behaviours.ExploMultiBehaviour;
 import eu.su.mas.dedaleEtu.mas.behaviours.ExploMultiReceiveBehaviour;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
 import jade.core.behaviours.Behaviour;
+import message.Case;
 
 /**
  * ExploreSolo agent. 
@@ -66,7 +67,7 @@ public class ExploreMultiAgent extends AbstractDedaleAgent {
 		System.out.println("the  agent "+this.getLocalName()+ " is started");
 
 	}
-	public void maj(List<String> open, String closed) {
+	public void maj(List<Case> open, String closed) {
 		x.maj(open, closed);
 	}
 	public void maj(List<String> open, List<String> closed) {

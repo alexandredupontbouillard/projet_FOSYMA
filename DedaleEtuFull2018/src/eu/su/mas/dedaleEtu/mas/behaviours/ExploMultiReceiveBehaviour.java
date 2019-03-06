@@ -1,6 +1,7 @@
 package eu.su.mas.dedaleEtu.mas.behaviours;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -17,6 +18,7 @@ import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
+import message.Case;
 
 public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 
@@ -38,16 +40,23 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 		public void setMap(MapRepresentation map) {
 			myMap = map;
 		}
-		public void messageClassique(List<String> content) {
-			String closedNode=content.get(content.size()-1);
-			content.remove(content.size()-1);
-			
-			myMap.addNode(closedNode, null);
-			for(int i =0 ; i< content.size();i++){
-				String nodeId=content.get(i);
+		public void messageClassique(List<Case> content) {
+			String closedNode=content.get(0).getId();
+			int force = content.get(0).getForce();
+			int serrurerie = content.get(0).getSerrurerie();
+			int tresor = content.get(0).getTresor();
+			Date d = content.get(0).getDate();
+			myMap.addNode(closedNode, null,d,serrurerie,force,tresor);
+			String nodeId;
+			for(int i =1 ; i< content.size();i++){
+				nodeId=content.get(i).getId();
+				force =content.get(i).getForce();
+				serrurerie = content.get(i).getSerrurerie();
+				tresor = content.get(i).getTresor();
+				d = content.get(i).getDate();
 				
 				if(! myMap.containNode(nodeId)) {
-					myMap.addNode(nodeId, MapAttribute.open);
+					myMap.addNode(nodeId, MapAttribute.open,d,serrurerie,force,tresor);
 				}
 					myMap.addEdge(closedNode, nodeId);
 						
@@ -63,12 +72,12 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 			List<String> open = new ArrayList();
 			List<String> closed = new ArrayList();
 			for(int i =0; i<nodes.size();i++) {
-				if(nodes.get(i).getRight().equals(("closed"))) {
+				if(nodes.get(i).getRight().equals("closed")){
 					myMap.addNode(nodes.get(i).getLeft());
 					closed.add(nodes.get(i).getLeft());
 				}
 				else {
-					myMap.addNode(nodes.get(i).getLeft(),MapAttribute.open);
+					myMap.addNode(nodes.get(i).getLeft(),MapAttribute.open,null,0,0,0);
 					open.add(nodes.get(i).getLeft());
 
 				}
@@ -87,7 +96,7 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 					if (msg != null) {
 						if(msg.getProtocol().equals("CLASSIQUE")) {
 							try {
-								List<String> content =(ArrayList<String>) msg.getContentObject();
+								List<Case> content =(ArrayList<Case>) msg.getContentObject();
 								messageClassique(content);
 								
 		

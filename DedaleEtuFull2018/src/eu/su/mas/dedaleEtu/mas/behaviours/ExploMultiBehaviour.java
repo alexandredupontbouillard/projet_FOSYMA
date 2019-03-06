@@ -19,6 +19,11 @@ import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import message.Case;
+
+import java.util.Date;
+
+
 
 
 /**
@@ -62,15 +67,15 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 		this.agentNames=agentNames;
 		
 	}
-	public void maj(List<String> open,String closed) {
+	public void maj(List<Case> open,String closed) {
 		if(!closedNodes.contains(closed)) {
 			closedNodes.add(closed);
 			
 		}
 		for(int i =0; i < open.size();i++) {
-			if(! closedNodes.contains(open.get(i))) {
-				if(! openNodes.contains(open.get(i))) {
-					openNodes.add(open.get(i));
+			if(! closedNodes.contains(open.get(i).getId())) {
+				if(! openNodes.contains(open.get(i).getId())) {
+					openNodes.add(open.get(i).getId());
 					
 				}
 			}
@@ -99,7 +104,8 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 		
 		msg=new ACLMessage(ACLMessage.INFORM);
 		msg.setSender(this.myAgent.getAID());
-		
+		List<Case> l = new ArrayList<Case>();
+		Case c;
 		for(int i =0;i<agentNames.size();i++) {
 			if(! agentNames.get(i).equals(myAgent.getAID().getName())) {
 				msg.addReceiver(new AID(agentNames.get(i),AID.ISLOCALNAME));
@@ -110,14 +116,13 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 		String nodeId;
 		while(iter.hasNext()){
 			nodeId=iter.next().getLeft();
-			if(nodeId != myPosition) {
-				m.add(nodeId);
-			}
+			c = new Case(nodeId,0,0,0);
+			l.add(c);
 		}
-		m.add(myPosition);
+		
 		msg.setProtocol("CLASSIQUE");;
 		try {
-			msg.setContentObject( (Serializable) m);
+			msg.setContentObject( (Serializable) l);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -128,6 +133,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 		
 	}
 	public void interblocageMessage() {
+		
 		ACLMessage msg=new ACLMessage(ACLMessage.INFORM);
 		msg.setSender(this.myAgent.getAID());
 		try {
@@ -169,9 +175,9 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 			if (myPosition!=null){
 				
 				List<Couple<String,List<Couple<Observation,Integer>>>> lobs=((AbstractDedaleAgent)this.myAgent).observe();//myPosition
-				//sendClassicMessage(lobs,myPosition);
+				sendClassicMessage(lobs,myPosition);
 				try {
-					this.myAgent.doWait(500);
+					this.myAgent.doWait(1500);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -181,7 +187,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 				this.closedNodes.add(myPosition);
 				this.openNodes.remove(myPosition);
 	
-				this.myMap.addNode(myPosition);
+				this.myMap.addNode(myPosition,null,null,0,0,0);
 				if(lobs!=null) deplacement_explo(lobs,myPosition);
 			}
 			if(interblocage){
@@ -201,7 +207,8 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 			if (!this.closedNodes.contains(nodeId)){
 				if (!this.openNodes.contains(nodeId)){
 					this.openNodes.add(nodeId);
-					this.myMap.addNode(nodeId, MapAttribute.open);
+					this.myMap.addNode(nodeId, MapAttribute.open, new Date(),0,0,0);
+					
 					this.myMap.addEdge(myPosition, nodeId);	
 				}else{
 					//the node exist, but not necessarily the edge
