@@ -9,12 +9,25 @@ public class Case implements Serializable{
 	private int tresor;
 	private int serrurerie;
 	private Date d;
-	public Case(String id,int resor, int serrurerie, int force) {
+	private boolean ouvert=true;
+	public Case(String id,int resor, int serrurerie, int force,boolean ouvert) {
 		this.id=id;
 		this.tresor=resor;
 		this.serrurerie=serrurerie;
 		this.force=force;
 		d = new Date();
+		this.ouvert=ouvert;
+	}
+	public Case(String id,int resor, int serrurerie, int force,boolean ouvert,Date d) {
+		this.id=id;
+		this.tresor=resor;
+		this.serrurerie=serrurerie;
+		this.force=force;
+		this.d = d;
+		this.ouvert=ouvert;
+	}
+	public boolean isOpen() {
+		return ouvert;
 	}
 	public String getId() {
 		return id;
@@ -45,5 +58,10 @@ public class Case implements Serializable{
 		this.force = force;
 	}
 	private int force;
-	
+	public boolean is_ouvert(){
+		return ouvert;
+	}
+	public void set_ouvert(boolean b) {
+		ouvert = b;
+	}
 }

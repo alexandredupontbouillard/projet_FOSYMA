@@ -15,6 +15,7 @@ import org.graphstream.ui.view.Viewer;
 import java.util.Date;
 
 import dataStructures.tuple.Couple;
+import message.Case;
 
 /**
  * This simple topology representation only deals with the graph, not its content.</br>
@@ -62,22 +63,19 @@ public class MapRepresentation implements Serializable {
 		this.viewer = this.g.display();
 		this.nbEdges=0;
 	}
-	public List<Couple<String,String>> getAllNodes(){
-		List<Couple<String,String>> result = new ArrayList<Couple<String,String>>();
+	public List<Case> getAllNodes(){
+		List<Case> result = new ArrayList<Case>();
 		Iterator<Node> ite = g.getNodeIterator();
 		Node x;
-		String clas;
+		boolean b;
 		while(ite.hasNext()) {
 			x=ite.next();
-			if(x.getAttribute("ui.class")==null) {
-				clas="closed";
-			}
-			else {
-				clas="open";
-			}
 			
-			result.add(new Couple<String,String>(x.getAttribute("ui.label"),clas));
-				
+			if(x.getAttribute("ui.label")!=null) {
+				String s = x.getAttribute("ui.class");
+				b = s!=null;
+				result.add(new Case(x.getAttribute("ui.label"), x.getAttribute("tresor"), x.getAttribute("serrure"), x.getAttribute("force"), b,x.getAttribute("date")));
+			}
 		}
 		return result;
 	}
@@ -96,38 +94,55 @@ public class MapRepresentation implements Serializable {
 	 * @param id
 	 * @param mapAttribute
 	 */
+	public void addNode(Case c) {
+		MapAttribute m=null;
+		if(c.isOpen()) {
+			m= MapAttribute.open;
+		}
+		addNode(c.getId(),m,c.getDate(),c.getSerrurerie(),c.getForce(),c.getTresor());
+	}
+	
 	public void addNode(String id,MapAttribute mapAttribute,Date d,int serrure,int force,int t){
 		Node n;
-		String s;
-		if(mapAttribute == null) {
-			s = null;
-		}
-		else {
-			s=mapAttribute.toString();
-		}
-		if (this.g.getNode(id)==null){
-			n=this.g.addNode(id);
-			n.addAttribute("ui.class", s);
-		}else{
+		
+		if (this.g.getNode(id)!=null){
 			n=this.g.getNode(id);
-			if(! (n.getAttribute("ui.class")==null)) {
-				n.clearAttributes();
-				n.addAttribute("ui.class", s);
-				
+			if( n.getAttribute("ui.class")!=null) {
+				if(mapAttribute!=null) {
+					n.changeAttribute("ui.class", mapAttribute.toString());
+				}
+				else {
+					String s=null;
+					n.changeAttribute("ui.class", s);
+				}
+			}
+			//n.addAttribute("ui.label",id);
+			Date x =(Date)n.getAttribute("date");
+			if(x.before(d)){
+				n.changeAttribute("date", d);
+				n.changeAttribute("tresor", t);
+				n.changeAttribute("serrure",serrure);
+				n.changeAttribute("force",force);
 			}
 			
 		}
-		
-		
-		
-		n.addAttribute("ui.label",id);
-		Date x =(Date)n.getAttribute("date");
-		/*if(x.before(d)){
+		else{
+			String s = null;
+			if(mapAttribute!=null) {
+				s = MapAttribute.open.toString();
+			}
+			n=this.g.addNode(id);
+			n.addAttribute("ui.label",id);
+			n.addAttribute("ui.class", s);
 			n.addAttribute("date", d);
 			n.addAttribute("tresor", t);
 			n.addAttribute("serrure",serrure);
 			n.addAttribute("force",force);
-		}*/
+		}
+		
+		
+		
+		
 	}
 	public boolean containNode(String node) {
 
@@ -138,15 +153,7 @@ public class MapRepresentation implements Serializable {
 	 * Add the node id if not already existing
 	 * @param id
 	 */
-	public void addNode(String id){
-		Node n=this.g.getNode(id);
-		if(n==null){
-			n=this.g.addNode(id);
-		}else{
-			n.clearAttributes();
-		}
-		n.addAttribute("ui.label",id);
-	}
+
 
    /**
     * Add the edge if not already existing.
@@ -155,8 +162,12 @@ public class MapRepresentation implements Serializable {
     */
 	public void addEdge(String idNode1,String idNode2){
 		try {
-			this.nbEdges++;
-			this.g.addEdge(this.nbEdges.toString(), idNode1, idNode2);
+			if(containNode(idNode1) && containNode(idNode2)) {
+				
+			
+				this.nbEdges++;
+				this.g.addEdge(this.nbEdges.toString(), idNode1, idNode2);
+			}
 		}catch (EdgeRejectedException e){
 			//Do not add an already existing one
 			this.nbEdges--;

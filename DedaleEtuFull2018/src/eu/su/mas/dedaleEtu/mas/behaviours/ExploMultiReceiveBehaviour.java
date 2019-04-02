@@ -40,53 +40,34 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 		public void setMap(MapRepresentation map) {
 			myMap = map;
 		}
-		public void messageClassique(List<Case> content) {
-			String closedNode=content.get(0).getId();
-			int force = content.get(0).getForce();
-			int serrurerie = content.get(0).getSerrurerie();
-			int tresor = content.get(0).getTresor();
-			Date d = content.get(0).getDate();
-			myMap.addNode(closedNode, null,d,serrurerie,force,tresor);
-			String nodeId;
-			for(int i =1 ; i< content.size();i++){
-				nodeId=content.get(i).getId();
-				force =content.get(i).getForce();
-				serrurerie = content.get(i).getSerrurerie();
-				tresor = content.get(i).getTresor();
-				d = content.get(i).getDate();
-				
-				if(! myMap.containNode(nodeId)) {
-					myMap.addNode(nodeId, MapAttribute.open,d,serrurerie,force,tresor);
-				}
-					myMap.addEdge(closedNode, nodeId);
-						
-					
-				
-			}
+		public void messageClassique(Couple<List<Case>,List<Couple<String,String>>> content) {
+			System.out.println("bien reçu"+myAgent.getName());
+			List<Case> nodes = content.getLeft();
 			
-			myagent.maj(content, closedNode);	
-		}
-		public void messageInterblocage(Couple<List<Couple<String,String>>,List<Couple<String,String>>> content) {
-			List<Couple<String,String>> nodes = content.getLeft();
 			List<Couple<String,String>> edges = content.getRight();
-			List<String> open = new ArrayList();
-			List<String> closed = new ArrayList();
+			List<Case> open = new ArrayList();
+			List<Case> closed = new ArrayList();
 			for(int i =0; i<nodes.size();i++) {
-				if(nodes.get(i).getRight().equals("closed")){
-					myMap.addNode(nodes.get(i).getLeft());
-					closed.add(nodes.get(i).getLeft());
+				myMap.addNode(nodes.get(i));
+				if(!nodes.get(i).isOpen()){
+					closed.add(nodes.get(i));
 				}
 				else {
-					myMap.addNode(nodes.get(i).getLeft(),MapAttribute.open,null,0,0,0);
-					open.add(nodes.get(i).getLeft());
+					
+					open.add(nodes.get(i));
 
 				}
 			}
 			for(int i =0; i<edges.size();i++) {
 				myMap.addEdge(edges.get(i).getLeft(), edges.get(i).getRight());
 			}
+			
 			myagent.maj(open, closed);
+
+				
 		}
+		public void messageInterblocage(Couple<List<Case>,List<Couple<String,String>>> content) {
+					}
 
 		public synchronized void action() {
 			if(myMap!=null) {
@@ -96,8 +77,10 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 					if (msg != null) {
 						if(msg.getProtocol().equals("CLASSIQUE")) {
 							try {
-								List<Case> content =(ArrayList<Case>) msg.getContentObject();
-								messageClassique(content);
+								Couple<List<Case>,List<Couple<String,String>>> c = (Couple<List<Case>,List<Couple<String,String>>>) msg.getContentObject();
+								if(((ExploreMultiAgent) myAgent).explore()) {
+									messageClassique(c);
+								}
 								
 		
 							} catch (UnreadableException e) {
@@ -105,15 +88,6 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 								e.printStackTrace();
 							}
 						}
-						else if(msg.getProtocol().equals("INTERBLOCAGE")) {
-							try {
-								Couple<List<Couple<String,String>>,List<Couple<String,String>>> c = (Couple<List<Couple<String,String>>,List<Couple<String,String>>>) msg.getContentObject();
-								messageInterblocage(c);
-							} catch (UnreadableException e) {
-								
-								e.printStackTrace();
-							}
-						}	
 						
 					}
 					else{

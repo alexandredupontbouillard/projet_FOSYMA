@@ -56,7 +56,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 	/**
 	 * Visited nodes
 	 */
-	protected Set<String> closedNodes;
+	private Set<String> closedNodes;
 	protected List<String> agentNames;
 	
 	public ExploMultiBehaviour(final AbstractDedaleAgent myagent, MapRepresentation myMap,List<String> agentNames) {
@@ -65,84 +65,43 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 		this.openNodes=new ArrayList<String>();
 		this.closedNodes=new HashSet<String>();
 		this.agentNames=agentNames;
-		
+
 	}
-	public void maj(List<Case> open,String closed) {
-		if(!closedNodes.contains(closed)) {
-			closedNodes.add(closed);
-			
-		}
-		for(int i =0; i < open.size();i++) {
-			if(! closedNodes.contains(open.get(i).getId())) {
-				if(! openNodes.contains(open.get(i).getId())) {
-					openNodes.add(open.get(i).getId());
-					
-				}
-			}
-		}
-		
-	}
-	public void maj(List<String> open,List<String> closed) {
+	
+	public void maj(List<Case> open,List<Case> closed) {
 		for(int i =0;i<closed.size();i++) {
-			if(! closedNodes.contains(closed.get(i))) {
-				closedNodes.add(closed.get(i));
-				if(openNodes.contains(closed.get(i))) {
-					openNodes.remove(closed.get(i));
-				}
+			if(! closedNodes.contains(closed.get(i).getId())) {
+				
+				openNodes.remove(closed.get(i).getId());
+				closedNodes.add(closed.get(i).getId());
+				myMap.addNode(closed.get(i));
+				
 			}
 		}
 		for(int i =0;i<open.size();i++) {
-			if(!openNodes.contains(open.get(i))) {
-				if(!closedNodes.contains(open.get(i))) {
-					openNodes.add(open.get(i));
+			if(!openNodes.contains(open.get(i).getId())) {
+				if(!closedNodes.contains(open.get(i).getId())) {
+					openNodes.add(open.get(i).getId());
+					open.get(i).set_ouvert(true);
+					myMap.addNode(open.get(i));
 				}
 			}
 		}
 	}
-	public void sendClassicMessage(List<Couple<String,List<Couple<Observation,Integer>>>> lobs,String myPosition) {
-		ACLMessage msg; 
-		
-		msg=new ACLMessage(ACLMessage.INFORM);
-		msg.setSender(this.myAgent.getAID());
-		List<Case> l = new ArrayList<Case>();
-		Case c;
-		for(int i =0;i<agentNames.size();i++) {
-			if(! agentNames.get(i).equals(myAgent.getAID().getName())) {
-				msg.addReceiver(new AID(agentNames.get(i),AID.ISLOCALNAME));
-			}
-		}
-		Iterator<Couple<String, List<Couple<Observation, Integer>>>> iter=lobs.iterator();
-		List<String> m = new ArrayList<String>();
-		String nodeId;
-		while(iter.hasNext()){
-			nodeId=iter.next().getLeft();
-			c = new Case(nodeId,0,0,0);
-			l.add(c);
-		}
-		
-		msg.setProtocol("CLASSIQUE");;
-		try {
-			msg.setContentObject( (Serializable) l);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-		((AbstractDedaleAgent)this.myAgent).sendMessage(msg);
-		
-	}
-	public void interblocageMessage() {
-		
+	
+	public void sendClassicMessage() {
 		ACLMessage msg=new ACLMessage(ACLMessage.INFORM);
 		msg.setSender(this.myAgent.getAID());
+
 		try {
 			List<Couple<String,String>> list_edges = myMap.getAllEdges();
-			List<Couple<String,String>> list_Nodes = myMap.getAllNodes();
-			Couple<List<Couple<String,String>>,List<Couple<String,String>>> c = new Couple<List<Couple<String,String>>,List<Couple<String,String>>>(list_Nodes,list_edges);
+			List<Case> list_Nodes = myMap.getAllNodes();
+			Couple<List<Case>,List<Couple<String,String>>> c = new Couple<List<Case>,List<Couple<String,String>>>(list_Nodes,list_edges);
 			
 			
-			msg.setProtocol("INTERBLOCAGE");
+			
+			
+			msg.setProtocol("CLASSIQUE");
 			msg.setContentObject((Serializable) c);
 			for(int i =0;i<agentNames.size();i++) {
 				if(! agentNames.get(i).equals(myAgent.getAID().getName())) {
@@ -157,49 +116,58 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 		}
 		
 		
-		interblocage=false;
+		
+	}
+	public void interblocageMessage() {
+		
+		
+	}
+	public boolean explore() {
+		return !myMap.is_complete();
 	}
 	
 
 	@Override
 	public synchronized void action() {
-		interblocage=false;
-		if(this.myMap==null)
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		if(this.myMap==null) {
 			this.myMap= new MapRepresentation();
+		}
+		
+		((ExploreMultiAgent) this.myAgent).setMap(myMap);
+
 		if(!myMap.is_complete()) {
-			
-				((ExploreMultiAgent) this.myAgent).setMap(myMap);
-			
 			//0) Retrieve the current position
 			String myPosition=((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
 			if (myPosition!=null){
 				
 				List<Couple<String,List<Couple<Observation,Integer>>>> lobs=((AbstractDedaleAgent)this.myAgent).observe();//myPosition
-				sendClassicMessage(lobs,myPosition);
 				try {
 					this.myAgent.doWait(1500);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				
-	
 				//1) remove the current node from openlist and add it to closedNodes.
 				this.closedNodes.add(myPosition);
 				this.openNodes.remove(myPosition);
 	
-				this.myMap.addNode(myPosition,null,null,0,0,0);
+				this.myMap.addNode(myPosition,null,new Date(),0,0,0);
+			
 				if(lobs!=null) deplacement_explo(lobs,myPosition);
 			}
-			if(interblocage){
-				interblocageMessage();
-			}
+		
+
 		}
 			
 		
 		
 	}
 	public void deplacement_explo(List<Couple<String,List<Couple<Observation,Integer>>>> lobs,String myPosition) {
-		//2) get the surrounding nodes and, if not in closedNodes, add them to open nodes.
 		String nextNode=null;
 		Iterator<Couple<String, List<Couple<Observation, Integer>>>> iter=lobs.iterator();
 		while(iter.hasNext()){
@@ -214,27 +182,28 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 					//the node exist, but not necessarily the edge
 					this.myMap.addEdge(myPosition, nodeId);
 				}
-				if (nextNode==null) nextNode=nodeId;
 			}
 		}
+		sendClassicMessage();
 
-		//3) while openNodes is not empty, continues.
+		
+		
 		if (this.openNodes.isEmpty()){
 			myMap.set_complete();
 			finished=true;
-			System.out.println("Exploration successufully done, behaviour removed.");
+			System.out.println("Exploration successufully done, behaviour removed."+myAgent.getName());
 		}else{
-			//4) select next move.
-			//4.1 If there exist one open node directly reachable, go for it,
-			//	 otherwise choose one from the openNode list, compute the shortestPath and go for it
-			if (nextNode==null){
-				//no directly accessible openNode
-				//chose one, compute the path and take the first step.
-				//nextNode=this.myMap.getShortestPath(myPosition, this.openNodes.get(0)).get(0);
-				nextNode=this.myMap.getShortestPathToClosestNode(myPosition, openNodes).get(0);
-			}
-			interblocage = !((AbstractDedaleAgent)this.myAgent).moveTo(nextNode);
-		
+			
+				List<String> pl =this.myMap.getShortestPathToClosestNode(myPosition, openNodes); 
+				if(pl.size()>0) {	
+					nextNode=pl.get(0);
+					boolean b = ((AbstractDedaleAgent)this.myAgent).moveTo(nextNode);
+					System.out.println(myAgent.getName()+pl.get(pl.size()-1));
+					System.out.println(myAgent.getName()+closedNodes);
+				}
+				
+				
+			
 		}
 
 	}
