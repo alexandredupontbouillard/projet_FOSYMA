@@ -41,15 +41,16 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 			myMap = map;
 		}
 		public void messageClassique(Couple<List<Case>,List<Couple<String,String>>> content) {
-			System.out.println("bien reçu"+myAgent.getName());
 			List<Case> nodes = content.getLeft();
 			
 			List<Couple<String,String>> edges = content.getRight();
 			List<Case> open = new ArrayList();
 			List<Case> closed = new ArrayList();
 			for(int i =0; i<nodes.size();i++) {
+				
 				myMap.addNode(nodes.get(i));
-				if(!nodes.get(i).isOpen()){
+				
+				if(!nodes.get(i).is_open()){
 					closed.add(nodes.get(i));
 				}
 				else {

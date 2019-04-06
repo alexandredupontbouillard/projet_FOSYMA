@@ -78,7 +78,23 @@ public class MapRepresentation implements Serializable {
 			}
 		}
 		return result;
+	}public List<Case> getAlltreasure(){
+		List<Case> result = new ArrayList<Case>();
+		Iterator<Node> ite = g.getNodeIterator();
+		Node x;
+		boolean b;
+		while(ite.hasNext()) {
+			x=ite.next();
+			
+			if(x.getAttribute("ui.label")!=null && (int)x.getAttribute("tresor")!=0) {
+				String s = x.getAttribute("ui.class");
+				b = s!=null;
+				result.add(new Case(x.getAttribute("ui.label"), x.getAttribute("tresor"), x.getAttribute("serrure"), x.getAttribute("force"), b,x.getAttribute("date")));
+			}
+		}
+		return result;
 	}
+	
 	public List<Couple<String, String>> getAllEdges(){
 		List<Couple<String,String>> result = new ArrayList<Couple<String,String>>();
 		Iterator<Edge> ite = g.getEdgeIterator();
@@ -96,25 +112,26 @@ public class MapRepresentation implements Serializable {
 	 */
 	public void addNode(Case c) {
 		MapAttribute m=null;
-		if(c.isOpen()) {
+		if(c.is_open()) {
 			m= MapAttribute.open;
 		}
-		addNode(c.getId(),m,c.getDate(),c.getSerrurerie(),c.getForce(),c.getTresor());
+		addNode(c.getId(),m,c.getDate(),c.getSerrurerie(),c.getForce(),c.getTresor(),c.is_ouvert());
+	}
+	public void addNodeF(Case c) {
+		
+		addNode(c.getId(),null,c.getDate(),c.getSerrurerie(),c.getForce(),c.getTresor(),c.is_ouvert());
 	}
 	
-	public void addNode(String id,MapAttribute mapAttribute,Date d,int serrure,int force,int t){
+	public void addNode(String id,MapAttribute mapAttribute,Date d,int serrure,int force,int t,boolean ouvert){
 		Node n;
-		
 		if (this.g.getNode(id)!=null){
 			n=this.g.getNode(id);
 			if( n.getAttribute("ui.class")!=null) {
-				if(mapAttribute!=null) {
-					n.changeAttribute("ui.class", mapAttribute.toString());
-				}
-				else {
+				if(mapAttribute==null) {
 					String s=null;
 					n.changeAttribute("ui.class", s);
 				}
+				
 			}
 			//n.addAttribute("ui.label",id);
 			Date x =(Date)n.getAttribute("date");
@@ -123,6 +140,7 @@ public class MapRepresentation implements Serializable {
 				n.changeAttribute("tresor", t);
 				n.changeAttribute("serrure",serrure);
 				n.changeAttribute("force",force);
+				n.changeAttribute("coffre_ouvert", ouvert);
 			}
 			
 		}
@@ -138,6 +156,7 @@ public class MapRepresentation implements Serializable {
 			n.addAttribute("tresor", t);
 			n.addAttribute("serrure",serrure);
 			n.addAttribute("force",force);
+			n.addAttribute("coffre_ouvert", ouvert);
 		}
 		
 		
