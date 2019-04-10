@@ -52,7 +52,6 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 	 * Current knowledge of the agent regarding the environment
 	 */
 	protected MapRepresentation myMap;
-
 	/**
 	 * Nodes known but not yet visited
 	 */
@@ -62,7 +61,6 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 	 */
 	private Set<String> closedNodes;
 	protected List<String> agentNames;
-	private List<String> objectives;
 
 	public ExploMultiBehaviour(final AbstractDedaleAgent myagent, MapRepresentation myMap, List<String> agentNames) {
 		super(myagent);
@@ -95,6 +93,10 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 		}
 	}
 
+	public void majTreasure(List<Case> tresor) {
+		// TODO
+	}
+
 	public void sendClassicMessage() {
 		ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 		msg.setSender(this.myAgent.getAID());
@@ -125,10 +127,27 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 		return !myMap.is_complete();
 	}
 
+	public void addNodeMypos(List<Couple<String, List<Couple<Observation, Integer>>>> lobs) {
+		int tresor = 0;
+		int serrure = 0;
+		int force = 0;
+		boolean ouvert = false;
+		Case c;
+		if (lobs.get(0).getRight().size() > 0) {
+			tresor = lobs.get(0).getRight().get(0).getRight();
+			serrure = lobs.get(0).getRight().get(3).getRight();
+			force = lobs.get(0).getRight().get(2).getRight();
+			ouvert = lobs.get(0).getRight().get(1).getRight() == 1;
+		}
+		c = new Case(lobs.get(0).getLeft(), tresor, serrure, force, false, ouvert);
+
+		this.myMap.addNode(c);
+	}
+
 	@Override
 	public synchronized void action() {
 		try {
-			Thread.sleep(500);
+			Thread.sleep(100);
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -138,60 +157,70 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 		}
 
 		((ExploreMultiAgent) this.myAgent).setMap(myMap);
-
+		List<Couple<String, List<Couple<Observation, Integer>>>> lobs = ((AbstractDedaleAgent) this.myAgent).observe();
 		if (!myMap.is_complete()) {
 			// 0) Retrieve the current position
 			String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
 			if (myPosition != null) {
 
-				List<Couple<String, List<Couple<Observation, Integer>>>> lobs = ((AbstractDedaleAgent) this.myAgent)
-						.observe();// myPosition
+				// myPosition
 
 				// 1) remove the current node from openlist and add it to closedNodes.
 				this.closedNodes.add(myPosition);
 				this.openNodes.remove(myPosition);
 
-				int tresor = 0;
-				int serrure = 0;
-				int force = 0;
-				boolean ouvert = false;
-				Case c;
-				if (lobs.get(0).getRight().size() > 0) {
-					tresor = lobs.get(0).getRight().get(0).getRight();
-					serrure = lobs.get(0).getRight().get(3).getRight();
-					force = lobs.get(0).getRight().get(2).getRight();
-					ouvert = lobs.get(0).getRight().get(1).getRight() == 1;
-				}
-				c = new Case(lobs.get(0).getLeft(), tresor, serrure, force, false, ouvert);
-
-				this.myMap.addNode(c);
+				addNodeMypos(lobs);
 
 				if (lobs != null)
 					deplacement_explo(lobs, myPosition);
 			}
 
 		} else {
-			if (objectives == null) {
-				List<Case> treasure_list = myMap.getAlltreasure();
-				if (treasure_list.size() != 0) {
-					String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
+			if (ramasser(lobs)) {
+				List<String> treasure_list = myMap.getAlltreasureClosed();
+				String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
+				if (treasure_list.size() > 0) {
+					List<String> pl = this.myMap.getShortestPathToClosestNode(myPosition, treasure_list);
+					if (pl.size() > 0) {
+						String nextNode = pl.get(0);
+						moveTo(nextNode);
 
-					objectives = this.myMap.getShortestPath(myPosition, treasure_list.get(0).getId());
-
+					}
 				} else {
+					for (int i = 0; i < 100; i++) {
+						move_random();
+					}
+
 					finished = true;
 				}
 			}
-			if (objectives != null) {
-				if (objectives.size() > 0) {
-					String nextNode = objectives.get(0);
-					moveTo(nextNode);
-					objectives.remove(nextNode);
-				}
-			}
+
+			majMapComplete(lobs);
+			sendClassicMessage();
 
 		}
 
+	}
+
+	protected boolean ramasser(List<Couple<String, List<Couple<Observation, Integer>>>> lobs) {
+		if (lobs.get(0).getRight().size() > 0) {
+			if (lobs.get(0).getRight().get(0).getRight() > 0) {
+				if (lobs.get(0).getRight().get(1).getRight() != 1) {
+					((AbstractDedaleAgent) this.myAgent).openLock(Observation.GOLD);
+				}
+
+				if (lobs.get(0).getRight().get(1).getRight() == 1) {
+					lobs = ((AbstractDedaleAgent) this.myAgent).observe();
+					addNodeMypos(lobs);
+					return true;
+
+				} else {
+					return false;
+				}
+			}
+			return true;
+		}
+		return true;
 	}
 
 	public void deplacement_explo(List<Couple<String, List<Couple<Observation, Integer>>>> lobs, String myPosition) {
@@ -200,7 +229,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 		if (this.openNodes.isEmpty()) {
 			myMap.set_complete();
 
-			System.out.println("Exploration successufully done, behaviour removed." + myAgent.getName());
+			System.out.println("Exploration successufully done" + myAgent.getName());
 		} else {
 
 			List<String> pl = this.myMap.getShortestPathToClosestNode(myPosition, openNodes);
@@ -214,7 +243,34 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 
 	}
 
-	private void majMap(List<Couple<String, List<Couple<Observation, Integer>>>> lobs, String myPosition) {
+	protected void majMapComplete(List<Couple<String, List<Couple<Observation, Integer>>>> lobs) {
+		int tresor;
+		int serrure;
+		int force;
+		boolean ouvert;
+		Iterator<Couple<String, List<Couple<Observation, Integer>>>> iter = lobs.iterator();
+		while (iter.hasNext()) {
+			Couple<String, List<Couple<Observation, Integer>>> elem = iter.next();
+			String nodeId = elem.getLeft();
+			tresor = 0;
+			serrure = 0;
+			force = 0;
+			ouvert = false;
+			Case c;
+			if (elem.getRight().size() > 0) {
+				tresor = elem.getRight().get(0).getRight();
+				serrure = elem.getRight().get(3).getRight();
+				force = elem.getRight().get(2).getRight();
+				ouvert = elem.getRight().get(1).getRight() == 1;
+
+			}
+			c = new Case(nodeId, tresor, serrure, force, false, ouvert);
+			this.myMap.addNode(c);
+
+		}
+	}
+
+	protected void majMap(List<Couple<String, List<Couple<Observation, Integer>>>> lobs, String myPosition) {
 		int tresor;
 		int serrure;
 		int force;
@@ -256,15 +312,18 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 		return finished;
 	}
 
-	private void moveTo(String id) {
+	protected void moveTo(String id) {
 		boolean b = ((AbstractDedaleAgent) this.myAgent).moveTo(id);
 		if (!b) {
-			move_random();
+			for (int i = 0; i < 3; i++) {
+				move_random();
+			}
+
 		}
 
 	}
 
-	private void move_random() {
+	protected void move_random() {
 		List<Couple<String, List<Couple<Observation, Integer>>>> lobs = ((AbstractDedaleAgent) this.myAgent).observe();// myPosition
 		Random r = new Random();
 		int x = r.nextInt(lobs.size());

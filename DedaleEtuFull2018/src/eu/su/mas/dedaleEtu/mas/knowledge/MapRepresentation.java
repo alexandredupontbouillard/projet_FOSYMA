@@ -27,7 +27,7 @@ import message.Case;
 public class MapRepresentation implements Serializable {
 
 	public enum MapAttribute {
-		agent,open
+		agent,open,coffre_ouvert
 	}
 
 	private static final long serialVersionUID = -1333959882640838272L;
@@ -94,6 +94,22 @@ public class MapRepresentation implements Serializable {
 		}
 		return result;
 	}
+	public List<String> getAlltreasureClosed(){
+		List<String> result = new ArrayList<String>();
+		Iterator<Node> ite = g.getNodeIterator();
+		Node x;
+		boolean b;
+		while(ite.hasNext()) {
+			x=ite.next();
+			
+			if(x.getAttribute("ui.label")!=null && (int)x.getAttribute("tresor")!=0 && !(boolean)x.getAttribute("coffre_ouvert") ) {
+				String s = x.getAttribute("ui.class");
+				b = s!=null;
+				result.add(x.getAttribute("ui.label"));
+			}
+		}
+		return result;
+	}
 	
 	public List<Couple<String, String>> getAllEdges(){
 		List<Couple<String,String>> result = new ArrayList<Couple<String,String>>();
@@ -116,6 +132,12 @@ public class MapRepresentation implements Serializable {
 			m= MapAttribute.open;
 		}
 		addNode(c.getId(),m,c.getDate(),c.getSerrurerie(),c.getForce(),c.getTresor(),c.is_ouvert());
+	}
+	public Case getNode(String id) {
+		Node n = g.getNode(id);
+		String s = n.getAttribute("ui.class");
+		boolean b = s!=null;
+		return new Case(id, n.getAttribute("tresor"), n.getAttribute("serrure"), n.getAttribute("force"), b,n.getAttribute("date"));
 	}
 	public void addNodeF(Case c) {
 		

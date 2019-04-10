@@ -68,4 +68,7 @@ public class Case implements Serializable{
 	public void set_ouvert(boolean b) {
 		ouvert = b;
 	}
+	public void ouvrir_coffre() {
+		coffre_ouvert=true;
+	}
 }
