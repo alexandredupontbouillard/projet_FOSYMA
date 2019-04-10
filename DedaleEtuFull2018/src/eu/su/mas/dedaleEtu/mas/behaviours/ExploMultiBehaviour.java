@@ -186,7 +186,8 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 						moveTo(nextNode);
 
 					}
-				} else {
+				}
+				else {
 					for (int i = 0; i < 100; i++) {
 						move_random();
 					}
@@ -206,11 +207,12 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 		if (lobs.get(0).getRight().size() > 0) {
 			if (lobs.get(0).getRight().get(0).getRight() > 0) {
 				if (lobs.get(0).getRight().get(1).getRight() != 1) {
+					
 					((AbstractDedaleAgent) this.myAgent).openLock(Observation.GOLD);
 				}
-
+				lobs = ((AbstractDedaleAgent) this.myAgent).observe();
 				if (lobs.get(0).getRight().get(1).getRight() == 1) {
-					lobs = ((AbstractDedaleAgent) this.myAgent).observe();
+					
 					addNodeMypos(lobs);
 					return true;
 
