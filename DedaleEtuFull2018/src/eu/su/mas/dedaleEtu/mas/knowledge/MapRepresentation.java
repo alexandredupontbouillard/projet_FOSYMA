@@ -157,7 +157,7 @@ public class MapRepresentation implements Serializable {
 			}
 			//n.addAttribute("ui.label",id);
 			Date x =(Date)n.getAttribute("date");
-			if(x.before(d)){
+			if(x.before(d) && mapAttribute != MapAttribute.open){
 				n.changeAttribute("date", d);
 				n.changeAttribute("tresor", t);
 				n.changeAttribute("serrure",serrure);

@@ -97,6 +97,6 @@ public final class ConfigurationFile {
 	public static boolean ENVIRONMENTisGRID=true;
 	public static boolean ACTIVE_WELL=false;
 	public static boolean ACTIVE_GOLD=true;
-	public static boolean ACTIVE_DIAMOND=true;
+	public static boolean ACTIVE_DIAMOND=false;
 	
 }

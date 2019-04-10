@@ -67,8 +67,7 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 
 				
 		}
-		public void messageInterblocage(Couple<List<Case>,List<Couple<String,String>>> content) {
-					}
+	
 
 		public synchronized void action() {
 			if(myMap!=null) {
@@ -80,7 +79,7 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 							try {
 								Couple<List<Case>,List<Couple<String,String>>> c = (Couple<List<Case>,List<Couple<String,String>>>) msg.getContentObject();
 								if(((ExploreMultiAgent) myAgent).explore()) {
-									messageClassique(c);
+									//messageClassique(c);
 								}
 								
 		
