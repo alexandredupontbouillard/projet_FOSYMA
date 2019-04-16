@@ -2,6 +2,7 @@ package eu.su.mas.dedaleEtu.mas.knowledge;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -95,7 +96,7 @@ public class MapRepresentation implements Serializable {
 		return result;
 	}
 	public List<String> getAlltreasureClosed(){
-		List<String> result = new ArrayList<String>();
+		List<Couple<String,Integer>> result = new ArrayList<Couple<String,Integer>>();
 		Iterator<Node> ite = g.getNodeIterator();
 		Node x;
 		boolean b;
@@ -105,10 +106,27 @@ public class MapRepresentation implements Serializable {
 			if(x.getAttribute("ui.label")!=null && (int)x.getAttribute("tresor")!=0 && !(boolean)x.getAttribute("coffre_ouvert") ) {
 				String s = x.getAttribute("ui.class");
 				b = s!=null;
-				result.add(x.getAttribute("ui.label"));
+				result.add(new Couple<String,Integer>(x.getAttribute("ui.label"),x.getAttribute("serrure")));
 			}
 		}
-		return result;
+		result.sort(
+			new Comparator<Couple<String,Integer>>() {
+		      
+	        @Override
+	        public int compare(Couple<String,Integer> e1, Couple<String,Integer> e2) {
+	        	if(e1.getRight()<e2.getRight()) {
+	        		return -1;
+	        	}
+	        	else if(e1.getRight()>e2.getRight()) {
+	        		return 1 ;
+	        	}
+	            return Integer.parseInt(e1.getLeft())-Integer.parseInt(e2.getLeft());
+	        }});
+		List<String> l = new ArrayList<String>();
+		for(int i =0; i < result.size();i++) {
+			l.add(l.size(), result.get(i).getLeft());
+		}
+		return l;
 	}
 	
 	public List<Couple<String, String>> getAllEdges(){
@@ -267,5 +285,96 @@ public class MapRepresentation implements Serializable {
 		shortestPath.remove(0);//remove the current position
 		return shortestPath;
 		
+	}
+	public List<String> syloPose() {
+		Iterator<Node> ite = g.getNodeIterator();
+		Node x;
+		Node y;
+		List<Node> n;
+		//liste des liste de voisins de chaque noeuds
+		List<List<Node>> voisins =new ArrayList<List<Node>>() ;
+		
+		while(ite.hasNext()) {
+			x=ite.next();
+			n = new ArrayList<Node>();
+			//le premier élément de la liste de voisins est l'élément lui même
+			n.add(x);
+			Iterator<Node> v = x.getNeighborNodeIterator();
+			while(v.hasNext()) {
+				y = v.next();
+				n.add(y);
+			}
+			voisins.add(n);
+		}
+		int compteur;
+		float degree;
+		List<Couple<Node,Float>> coeffClust = new ArrayList<Couple<Node,Float>>();
+		for(int i =0 ; i<voisins.size();i++) {
+			compteur=0;
+			degree= (float) 0;
+			for(int j =1;j<voisins.get(i).size();j++) {
+				
+				ite = voisins.get(i).get(j).getNeighborNodeIterator();
+				while(ite.hasNext()) {
+					x = ite.next();
+					if(voisins.get(i).contains(x)) {
+						compteur=compteur+1;
+					}
+				}
+			}
+			if(voisins.get(i).get(0).getDegree()>1) {
+				degree =  ((compteur-voisins.get(i).get(0).getDegree())/(voisins.get(i).get(0).getDegree()*(voisins.get(i).get(0).getDegree()-1)));
+			}
+			else {
+				degree =   ((compteur-voisins.get(i).get(0).getDegree())/voisins.get(i).get(0).getDegree());
+			}
+			if(voisins.get(i).get(0).getAttribute("ui.label") != null) {
+				coeffClust.add(new Couple<Node,Float>(voisins.get(i).get(0),new Float(degree)));
+			}
+		}
+		coeffClust.sort(new Comparator<Couple<Node,Float>>() {
+		      
+	        @Override
+	        public int compare(Couple<Node,Float> e1, Couple<Node,Float> e2) {
+	        	if((int)e1.getLeft().getAttribute("tresor")>0) {
+	        		if((int)e2.getLeft().getAttribute("tresor")>0) {
+		        		return 0 ;
+		        	}
+	        		else {
+	        			return -1;
+	        		}
+	        		
+	        	}
+	        	else if((int)e2.getLeft().getAttribute("tresor")>0) {
+	        		return 1 ;
+	        	}
+	        	else if(e1.getRight() > e2.getRight()) {
+	        		return 1;
+	        	}
+	        	else if(e1.getRight()< e2.getRight()){
+	        		return -1;
+	        	}
+	        	else if(  Integer.parseInt(e1.getLeft().getAttribute("ui.label")) > Integer.parseInt(e2.getLeft().getAttribute("ui.label"))) {
+	        		return 1;
+	        	}
+	        	else {
+	        		return -1;
+	        	}
+	        }});
+		List<String> result = getVoisins(coeffClust.get(coeffClust.size()-1).getLeft().getAttribute("ui.label"));
+		result.add(coeffClust.get(coeffClust.size()-1).getLeft().getAttribute("ui.label"));
+		return result;
+		
+	}
+	public List<String> getVoisins(String id){
+		List<String> result = new ArrayList<String>();
+		Node x = g.getNode(id);
+		Iterator<Node> ite = x.getNeighborNodeIterator();
+		Node y;
+		while(ite.hasNext()) {
+			y = ite.next();
+			result.add(y.getAttribute("ui.label"));
+		}
+		return result;
 	}
 }

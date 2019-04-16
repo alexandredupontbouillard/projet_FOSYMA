@@ -10,6 +10,8 @@ import javax.swing.text.AbstractDocument.Content;
 
 import dataStructures.tuple.Couple;
 import eu.su.mas.dedale.env.Observation;
+import eu.su.mas.dedale.mas.AbstractDedaleAgent;
+import eu.su.mas.dedaleEtu.mas.agents.dummies.DummyTankerAgent;
 import eu.su.mas.dedaleEtu.mas.agents.dummies.ExploreMultiAgent;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation.MapAttribute;
@@ -25,7 +27,7 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 		private static final long serialVersionUID = 9088209402507795289L;
 
 		private boolean finished=false;
-		protected ExploreMultiAgent myagent;
+		protected ExploAgent myagent;
 		/**
 		 * 
 		 * This behaviour is a one Shot.
@@ -34,6 +36,10 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 		 */
 		protected MapRepresentation myMap;
 		public ExploMultiReceiveBehaviour(final ExploreMultiAgent myagent) {
+			super(myagent);
+			this.myagent=myagent;
+		}
+		public ExploMultiReceiveBehaviour(final DummyTankerAgent myagent) {
 			super(myagent);
 			this.myagent=myagent;
 		}

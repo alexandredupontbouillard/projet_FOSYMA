@@ -6,6 +6,7 @@ import java.util.List;
 
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedale.mas.agents.dedaleDummyAgents.DummyWumpusShift;
+import eu.su.mas.dedaleEtu.mas.agents.dummies.CollectorMultiAgent;
 import eu.su.mas.dedaleEtu.mas.agents.dummies.ExploreMultiAgent;
 import eu.su.mas.dedale.mas.agents.GateKeeperAgent;
 import eu.su.mas.dedale.mas.agents.dedaleDummyAgents.DummyCollectorAgent;
@@ -307,15 +308,25 @@ public class Principal {
 		 * AGENT Explo1
 		 *********/
 		List<String> agentNames = new ArrayList<String>();
-		agentNames.add("Explo1");
-		agentNames.add("Explo2");
-		agentNames.add("Explo3");
+		agentNames.add("Collect1");
+		agentNames.add("Collect2");
+		agentNames.add("Collect3");
 		c = containerList.get(ConfigurationFile.LOCAL_CONTAINER2_NAME);
 		Assert.assertNotNull("This container does not exist",c);
 		Object [] entityParameters2=new Object[] {agentNames};
 		for(int i =0 ; i<agentNames.size();i++) {
-			ag=createNewDedaleAgent(c, agentNames.get(i), ExploreMultiAgent.class.getName(), entityParameters2);
-			agentList.add(ag);
+			if(agentNames.get(i).contains("Explo")) {
+				ag=createNewDedaleAgent(c, agentNames.get(i), ExploreMultiAgent.class.getName(), entityParameters2);
+				agentList.add(ag);
+			}
+			if(agentNames.get(i).contains("Collect")) {
+				ag=createNewDedaleAgent(c, agentNames.get(i), CollectorMultiAgent.class.getName(), entityParameters2);
+				agentList.add(ag);
+			}
+			if(agentNames.get(i).contains("Silo")) {
+				ag=createNewDedaleAgent(c, agentNames.get(i), DummyTankerAgent.class.getName(), entityParameters2);
+				agentList.add(ag);
+			}
 		}
 		
 		/*********

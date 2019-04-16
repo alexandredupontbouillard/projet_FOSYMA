@@ -46,7 +46,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 
 	private static final long serialVersionUID = 8567689731496787661L;
 
-	private boolean finished = false;
+	protected boolean finished = false;
 	private boolean interblocage = false;
 	/**
 	 * Current knowledge of the agent regarding the environment
@@ -93,9 +93,6 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 		}
 	}
 
-	public void majTreasure(List<Case> tresor) {
-		// TODO
-	}
 
 	public void sendClassicMessage() {
 		ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
@@ -204,6 +201,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 
 		} else {
 			if (ramasser(lobs)) {
+				
 				List<String> treasure_list = myMap.getAlltreasureClosed();
 				String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
 				if (treasure_list.size() > 0) {
@@ -243,7 +241,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 				h=transfoLobs(lobs.get(0).getRight());
 				if (h.get(1) == 1) {
 					System.out.println(lobs.get(0).getLeft()+" ouvert depuis 20181818181");
-					((AbstractDedaleAgent) this.myAgent).pick();
+					
 					
 					addNodeMypos(lobs);
 					return true;
@@ -362,6 +360,11 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 		Random r = new Random();
 		int x = r.nextInt(lobs.size());
 		((AbstractDedaleAgent) this.myAgent).moveTo(lobs.get(x).getLeft());
+	}
+
+	public boolean ramasser() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

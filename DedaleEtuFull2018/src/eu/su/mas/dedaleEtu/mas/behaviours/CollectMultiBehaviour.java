@@ -60,12 +60,38 @@ public class CollectMultiBehaviour extends ExploMultiBehaviour {
 
 	@Override
 	public synchronized void action() {
+		if (this.myMap == null) {
+			this.myMap = new MapRepresentation();
+		}
 		super.action();
 	}
-	protected boolean ramasser(List<Couple<String, List<Couple<Observation, Integer>>>> lobs) {
-		return super.ramasser( lobs);
+		protected boolean ramasser(List<Couple<String, List<Couple<Observation, Integer>>>> lobs) {
+			if (lobs.get(0).getRight().size() > 0) {
+				ArrayList<Integer> h = transfoLobs(lobs.get(0).getRight());
+				
+				if (h.get(0) > 0) {
+					if (h.get(1) != 1) {
+						((AbstractDedaleAgent) this.myAgent).openLock(Observation.GOLD);
+						
+					}
+					lobs = ((AbstractDedaleAgent) this.myAgent).observe();
+					h=transfoLobs(lobs.get(0).getRight());
+					if (h.get(1) == 1) {
+						((AbstractDedaleAgent)myAgent).pick();
+						
+						addNodeMypos(lobs);
+						return true;
+
+					} else {
+						return false;
+					}
+				}
+				return true;
+			}
+			return true;
+		}
 			
-	}
+	
 
 	public void deplacement_explo(List<Couple<String, List<Couple<Observation, Integer>>>> lobs, String myPosition) {
 		super.deplacement_explo(lobs,myPosition);
