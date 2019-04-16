@@ -39,10 +39,7 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 			super(myagent);
 			this.myagent=myagent;
 		}
-		public ExploMultiReceiveBehaviour(final DummyTankerAgent myagent) {
-			super(myagent);
-			this.myagent=myagent;
-		}
+		
 		public void setMap(MapRepresentation map) {
 			myMap = map;
 		}
@@ -73,7 +70,7 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 
 				
 		}
-	
+		
 
 		public synchronized void action() {
 			if(myMap!=null) {
@@ -85,7 +82,7 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 							try {
 								Couple<List<Case>,List<Couple<String,String>>> c = (Couple<List<Case>,List<Couple<String,String>>>) msg.getContentObject();
 								if(((ExploreMultiAgent) myAgent).explore()) {
-									//messageClassique(c);
+									messageClassique(c);
 								}
 								
 		

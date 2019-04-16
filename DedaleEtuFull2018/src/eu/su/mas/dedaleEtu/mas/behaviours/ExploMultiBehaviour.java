@@ -177,7 +177,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 			this.myMap = new MapRepresentation();
 		}
 
-		((ExploreMultiAgent) this.myAgent).setMap(myMap);
+		setmap();
 		List<Couple<String, List<Couple<Observation, Integer>>>> lobs = ((AbstractDedaleAgent) this.myAgent).observe();
 		
 		
@@ -203,6 +203,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 			if (ramasser(lobs)) {
 				
 				List<String> treasure_list = myMap.getAlltreasureClosed();
+				System.out.println(treasure_list);
 				String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
 				if (treasure_list.size() > 0) {
 
@@ -213,7 +214,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 
 					} 
 				} else {
-					for (int i = 0; i < 100; i++) {
+					for (int i = 0; i < 10; i++) {
 						move_random();
 					}
 
@@ -365,6 +366,9 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 	public boolean ramasser() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+	public void setmap() {
+		((ExploreMultiAgent) this.myAgent).setMap(myMap);
 	}
 
 }

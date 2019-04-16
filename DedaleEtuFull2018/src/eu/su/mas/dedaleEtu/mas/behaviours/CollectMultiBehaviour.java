@@ -64,8 +64,12 @@ public class CollectMultiBehaviour extends ExploMultiBehaviour {
 			this.myMap = new MapRepresentation();
 		}
 		super.action();
+		
 	}
 		protected boolean ramasser(List<Couple<String, List<Couple<Observation, Integer>>>> lobs) {
+			if(objectives==null) {
+				//objectives = myMap.syloPose();
+			}
 			if (lobs.get(0).getRight().size() > 0) {
 				ArrayList<Integer> h = transfoLobs(lobs.get(0).getRight());
 				
@@ -80,7 +84,16 @@ public class CollectMultiBehaviour extends ExploMultiBehaviour {
 						((AbstractDedaleAgent)myAgent).pick();
 						
 						addNodeMypos(lobs);
-						return true;
+						List<String> pl = this.myMap.getShortestPathToClosestNode(((AbstractDedaleAgent)myAgent).getCurrentPosition(), objectives);
+						if (pl.size() > 0) {
+							String nextNode = pl.get(0);
+							moveTo(nextNode);
+
+						}else {
+							((AbstractDedaleAgent)myAgent).dropOff();
+						}
+
+						return false;
 
 					} else {
 						return false;

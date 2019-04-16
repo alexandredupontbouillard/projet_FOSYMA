@@ -3,6 +3,7 @@ package eu.su.mas.dedaleEtu.mas.agents.dummies;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import dataStructures.tuple.Couple;
 import eu.su.mas.dedale.env.Observation;
@@ -14,7 +15,11 @@ import eu.su.mas.dedaleEtu.mas.behaviours.ExploMultiBehaviour;
 import eu.su.mas.dedaleEtu.mas.behaviours.ExploMultiReceiveBehaviour;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
 import jade.core.behaviours.Behaviour;
+import jade.core.behaviours.SimpleBehaviour;
 import jade.core.behaviours.TickerBehaviour;
+import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
+import jade.lang.acl.UnreadableException;
 import message.Case;
 
 
@@ -36,44 +41,43 @@ public class DummyTankerAgent extends AbstractDedaleAgent implements ExploAgent{
 
 
 	
-	final Object[] args = getArguments();
+	
 	protected List<String> agentNames;
-	protected RandomTankerBehaviour x;
-	protected ExploMultiReceiveBehaviour y;
+	protected TankerBehaviour x;
+	protected TankerMultiReceiveBehaviour y;
 
 
-	private MapRepresentation myMap;
+	protected MapRepresentation myMap;
 	protected void setup(){
-
+		System.out.println("yoyoyoyoyoyoyo");
 		super.setup();
-
+		Object[] args = getArguments();
 		List<Behaviour> lb=new ArrayList<Behaviour>();
 		if(args.length!=0) {
 			agentNames = (ArrayList<String>) args[2];
-		x = new RandomTankerBehaviour(this,this.myMap,agentNames);
-		y=new ExploMultiReceiveBehaviour(this);
-		lb.add(y);
-		lb.add(x);
+			x = new TankerBehaviour(this,this.myMap,agentNames);
+			//y=new ExploMultiReceiveBehaviour(this);
+			//lb.add(y);
+			lb.add(x);
 		}
 		addBehaviour(new startMyBehaviours(this,lb));
 		
-		
+		System.out.println("the  agent "+this.getLocalName()+ " is started");
+
 
 	}
 
 	/**
 	 * This method is automatically called after doDelete()
 	 */
-	protected void takeDown(){
 
-	}
 	public void maj(List<Case> open, List<Case> closed) {
 		x.maj(open, closed);
 	}
 	
 	public void setMap(MapRepresentation map) {
 		myMap = map;
-		y.setMap(myMap);
+		//y.setMap(myMap);
 	}
 	public boolean explore() {
 		return x.explore();
@@ -90,15 +94,23 @@ public class DummyTankerAgent extends AbstractDedaleAgent implements ExploAgent{
  **************************************/
 
 
-class RandomTankerBehaviour extends ExploMultiBehaviour{
+class TankerBehaviour extends ExploMultiBehaviour{
 	/**
 	 * When an agent choose to migrate all its components should be serializable
 	 *  
 	 */
+	private boolean finished = false;
+	protected ArrayList<String> openNodes;
+	/**
+	 * Visited nodes
+	 */
+	protected MapRepresentation myMap;
+
+	private Set<String> closedNodes;
 	private static final long serialVersionUID = 9088209402507795289L;
 	protected List<String> agentNames;
 	private String siloPos;
-	public RandomTankerBehaviour(final AbstractDedaleAgent myagent, MapRepresentation myMap, List<String> agentNames) {
+	public TankerBehaviour(final AbstractDedaleAgent myagent, MapRepresentation myMap, List<String> agentNames) {
 		super(myagent,myMap,agentNames);
 		
 
@@ -118,6 +130,7 @@ class RandomTankerBehaviour extends ExploMultiBehaviour{
 
 	@Override
 	public void action() {
+		
 		if (this.myMap == null) {
 			this.myMap = new MapRepresentation();
 		
@@ -176,5 +189,94 @@ class RandomTankerBehaviour extends ExploMultiBehaviour{
 	protected void move_random() {
 		super.move_random();
 	}
+	@Override
+	public void setmap() {
+		((DummyTankerAgent) this.myAgent).setMap(myMap);
+	}
 
 }
+class TankerMultiReceiveBehaviour extends SimpleBehaviour {
+
+	private static final long serialVersionUID = 9088209402507795289L;
+
+	private boolean finished=false;
+	protected ExploAgent myagent;
+	/**
+	 * 
+	 * This behaviour is a one Shot.
+	 * It receives a message tagged with an inform performative, print the content in the console and destroy itlself
+	 * @param myagent
+	 */
+	protected MapRepresentation myMap;
+	
+	public TankerMultiReceiveBehaviour(final DummyTankerAgent myagent) {
+		super(myagent);
+		this.myagent=myagent;
+	}
+	public void setMap(MapRepresentation map) {
+		myMap = map;
+	}
+	public void messageClassique(Couple<List<Case>,List<Couple<String,String>>> content) {
+		List<Case> nodes = content.getLeft();
+		
+		List<Couple<String,String>> edges = content.getRight();
+		List<Case> open = new ArrayList();
+		List<Case> closed = new ArrayList();
+		for(int i =0; i<nodes.size();i++) {
+			
+			myMap.addNode(nodes.get(i));
+			
+			if(!nodes.get(i).is_open()){
+				closed.add(nodes.get(i));
+			}
+			else {
+				
+				open.add(nodes.get(i));
+
+			}
+		}
+		for(int i =0; i<edges.size();i++) {
+			myMap.addEdge(edges.get(i).getLeft(), edges.get(i).getRight());
+		}
+		
+		myagent.maj(open, closed);
+
+			
+	}
+	
+
+	public synchronized void action() {
+		if(myMap!=null) {
+			if(!myMap.is_complete()) {
+				final MessageTemplate msgTemplate = MessageTemplate.MatchPerformative(ACLMessage.INFORM);			
+				final ACLMessage msg = this.myAgent.receive(msgTemplate);
+				if (msg != null) {
+					if(msg.getProtocol().equals("CLASSIQUE")) {
+						try {
+							Couple<List<Case>,List<Couple<String,String>>> c = (Couple<List<Case>,List<Couple<String,String>>>) msg.getContentObject();
+							if(((DummyTankerAgent) myAgent).explore()) {
+								messageClassique(c);
+							}
+							
+	
+						} catch (UnreadableException e) {
+							
+							e.printStackTrace();
+						}
+					}
+					
+				}
+				else{
+						block();
+				}
+			}
+		}
+	}
+
+	public boolean done() {
+		return finished;
+	}
+
+}
+
+
