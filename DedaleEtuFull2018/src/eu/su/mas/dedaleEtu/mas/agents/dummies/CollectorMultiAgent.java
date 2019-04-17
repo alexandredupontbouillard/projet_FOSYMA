@@ -3,15 +3,17 @@ package eu.su.mas.dedaleEtu.mas.agents.dummies;
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedale.mas.agent.behaviours.startMyBehaviours;
 import eu.su.mas.dedaleEtu.mas.behaviours.CollectMultiBehaviour;
+import eu.su.mas.dedaleEtu.mas.behaviours.ExploAgent;
 import eu.su.mas.dedaleEtu.mas.behaviours.ExploMultiBehaviour;
 import eu.su.mas.dedaleEtu.mas.behaviours.ExploMultiReceiveBehaviour;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
 import jade.core.behaviours.Behaviour;
 import message.Case;
 
-public class CollectorMultiAgent extends ExploreMultiAgent{
+public class CollectorMultiAgent extends AbstractDedaleAgent implements ExploAgent{
 	private static final long serialVersionUID = -6431752665590433727L;
 	protected MapRepresentation myMap;
 	
@@ -30,7 +32,6 @@ public class CollectorMultiAgent extends ExploreMultiAgent{
 	protected void setup(){
 
 		super.setup();
-		
 		List<Behaviour> lb=new ArrayList<Behaviour>();
 		
 		final Object[] args = getArguments();

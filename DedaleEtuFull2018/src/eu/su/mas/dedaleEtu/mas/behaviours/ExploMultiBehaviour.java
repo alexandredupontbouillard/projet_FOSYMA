@@ -203,7 +203,6 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 			if (ramasser(lobs)) {
 				
 				List<String> treasure_list = myMap.getAlltreasureClosed();
-				System.out.println(treasure_list);
 				String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
 				if (treasure_list.size() > 0) {
 

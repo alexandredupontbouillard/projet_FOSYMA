@@ -306,12 +306,13 @@ public class MapRepresentation implements Serializable {
 			}
 			voisins.add(n);
 		}
+		System.out.println(voisins.size() + "taille de la liste de voisins");
 		int compteur;
 		float degree;
 		List<Couple<Node,Float>> coeffClust = new ArrayList<Couple<Node,Float>>();
 		for(int i =0 ; i<voisins.size();i++) {
 			compteur=0;
-			degree= (float) 0;
+			degree=  0;
 			for(int j =1;j<voisins.get(i).size();j++) {
 				
 				ite = voisins.get(i).get(j).getNeighborNodeIterator();
@@ -333,7 +334,7 @@ public class MapRepresentation implements Serializable {
 			}
 		}
 		coeffClust.sort(new Comparator<Couple<Node,Float>>() {
-		      
+		
 	        @Override
 	        public int compare(Couple<Node,Float> e1, Couple<Node,Float> e2) {
 	        	if((int)e1.getLeft().getAttribute("tresor")>0) {

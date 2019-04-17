@@ -35,8 +35,8 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 		 * @param myagent
 		 */
 		protected MapRepresentation myMap;
-		public ExploMultiReceiveBehaviour(final ExploreMultiAgent myagent) {
-			super(myagent);
+		public ExploMultiReceiveBehaviour(final ExploAgent myagent) {
+			super((AbstractDedaleAgent)myagent);
 			this.myagent=myagent;
 		}
 		
@@ -81,8 +81,8 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 						if(msg.getProtocol().equals("CLASSIQUE")) {
 							try {
 								Couple<List<Case>,List<Couple<String,String>>> c = (Couple<List<Case>,List<Couple<String,String>>>) msg.getContentObject();
-								if(((ExploreMultiAgent) myAgent).explore()) {
-									messageClassique(c);
+								if(((ExploAgent) myAgent).explore()) {
+									//messageClassique(c);
 								}
 								
 		

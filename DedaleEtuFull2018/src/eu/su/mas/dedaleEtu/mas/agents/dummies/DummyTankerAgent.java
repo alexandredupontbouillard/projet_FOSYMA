@@ -2,6 +2,7 @@ package eu.su.mas.dedaleEtu.mas.agents.dummies;
 
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -49,7 +50,6 @@ public class DummyTankerAgent extends AbstractDedaleAgent implements ExploAgent{
 
 	protected MapRepresentation myMap;
 	protected void setup(){
-		System.out.println("yoyoyoyoyoyoyo");
 		super.setup();
 		Object[] args = getArguments();
 		List<Behaviour> lb=new ArrayList<Behaviour>();
@@ -109,9 +109,12 @@ class TankerBehaviour extends ExploMultiBehaviour{
 	private Set<String> closedNodes;
 	private static final long serialVersionUID = 9088209402507795289L;
 	protected List<String> agentNames;
-	private String siloPos;
+	private String siloPos="nopos";
 	public TankerBehaviour(final AbstractDedaleAgent myagent, MapRepresentation myMap, List<String> agentNames) {
 		super(myagent,myMap,agentNames);
+		this.openNodes = new ArrayList<String>();
+		this.closedNodes = new HashSet<String>();
+		this.agentNames = agentNames;
 		
 
 	}
@@ -130,17 +133,45 @@ class TankerBehaviour extends ExploMultiBehaviour{
 
 	@Override
 	public void action() {
-		
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		if (this.myMap == null) {
 			this.myMap = new MapRepresentation();
-		
 		}
+
+		setmap();
+		List<Couple<String, List<Couple<Observation, Integer>>>> lobs = ((AbstractDedaleAgent) this.myAgent).observe();
 		
-		super.action();
-		if(myMap.is_complete()) {
-			if(siloPos==null) {
+		
+		
+		if (!myMap.is_complete()) {
+			// 0) Retrieve the current position
+			String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
+			if (myPosition != null) {
+
+				// myPosition
+
+				// 1) remove the current node from openlist and add it to closedNodes.
+				this.closedNodes.add(myPosition);
+				this.openNodes.remove(myPosition);
+
+				addNodeMypos(lobs);
+
+				if (lobs != null)
+					deplacement_explo(lobs, myPosition);
+			}
+
+		}
+		else {
+			System.out.println("lalalala");
+			if(siloPos.equals("nopos")) {
 				List<String> tran = myMap.syloPose();
-				siloPos = tran.get(tran.size()-1);
+				System.out.println(tran + myAgent.getName());
+				siloPos = tran.get(tran.size());
 			}
 			if(! ((AbstractDedaleAgent)myAgent).getCurrentPosition().equals(siloPos)) {
 				
