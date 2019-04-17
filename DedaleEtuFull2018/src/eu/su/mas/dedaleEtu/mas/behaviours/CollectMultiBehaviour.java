@@ -41,6 +41,7 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 	protected List<String> agentNames;
 	private List<String> objectives;
 	private boolean gotosilo=false;
+	private String silo;
 
 	public CollectMultiBehaviour(final AbstractDedaleAgent myagent, MapRepresentation myMap, List<String> agentNames) {
 		super(myagent);
@@ -48,6 +49,11 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 		this.openNodes = new ArrayList<String>();
 		this.closedNodes = new HashSet<String>();
 		this.agentNames = agentNames;
+		for(int i =0 ; i<agentNames.size();i++) {
+			if(agentNames.get(i).contains("Tanker")) {
+				silo = 	agentNames.get(i);
+			}
+		}
 		
 
 	}
@@ -149,7 +155,7 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 	@Override
 	public synchronized void action() {
 		try {
-			Thread.sleep(100);
+			Thread.sleep(500);
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -183,17 +189,21 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 		} else {
 			if (ramasser(lobs)) {
 				
-				List<String> treasure_list = myMap.getAlltreasureClosed();
+				List<String> treasure_list = myMap.getAlltreasure();
 				System.out.println(treasure_list + myAgent.getName());
 				String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
 				if (treasure_list.size() > 0) {
-
+					
 					List<String> pl = this.myMap.getShortestPath(myPosition, treasure_list.get(0));
-					if (pl.size() >0) {
+					if (pl.size() >3) {
 						String nextNode = pl.get(0);
-						((AbstractDedaleAgent)myAgent).moveTo(nextNode);
+						moveTo(nextNode);
 
 					} 
+					else if(pl.size() >0) {
+						String nextNode = pl.get(0);
+						((AbstractDedaleAgent)myAgent).moveTo(nextNode);
+					}
 				} else {
 					for (int i = 0; i < 10; i++) {
 						move_random();
@@ -221,8 +231,12 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 					moveTo(nextNode);
 
 				}else {
-					((AbstractDedaleAgent)myAgent).dropOff();
+					((AbstractDedaleAgent)myAgent).emptyMyBackPack(silo);
+					gotosilo = false;
+					System.out.println("je dépose au tanker");
 				}
+				
+				return false;
 			}
 			else if (lobs.get(0).getRight().size() > 0) {
 				ArrayList<Integer> h = transfoLobs(lobs.get(0).getRight());
@@ -236,17 +250,18 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 					h=transfoLobs(lobs.get(0).getRight());
 					if (h.get(1) == 1) {
 						((AbstractDedaleAgent)myAgent).pick();
-						gotosilo = true;
+							gotosilo = true;
+						
 						addNodeMypos(lobs);
 						
 
-						return false;
+						
 
-					} else {
-						return false;
-					}
-				}
-				return true;
+					} 
+						
+					
+				}return false;
+			
 			}
 			return true;
 		}

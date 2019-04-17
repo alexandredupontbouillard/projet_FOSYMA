@@ -239,9 +239,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 				}
 				lobs = ((AbstractDedaleAgent) this.myAgent).observe();
 				h=transfoLobs(lobs.get(0).getRight());
-				if (h.get(1) == 1) {
-					System.out.println(lobs.get(0).getLeft()+" ouvert depuis 20181818181");
-					
+				if (h.get(1) == 1) {					
 					
 					addNodeMypos(lobs);
 					return true;

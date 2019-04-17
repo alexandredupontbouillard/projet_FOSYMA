@@ -82,7 +82,7 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 							try {
 								Couple<List<Case>,List<Couple<String,String>>> c = (Couple<List<Case>,List<Couple<String,String>>>) msg.getContentObject();
 								if(((ExploAgent) myAgent).explore()) {
-									//messageClassique(c);
+									messageClassique(c);
 								}
 								
 		

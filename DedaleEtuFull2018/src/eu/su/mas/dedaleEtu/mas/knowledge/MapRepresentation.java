@@ -79,21 +79,38 @@ public class MapRepresentation implements Serializable {
 			}
 		}
 		return result;
-	}public List<Case> getAlltreasure(){
-		List<Case> result = new ArrayList<Case>();
+	}public List<String> getAlltreasure(){
+		List<Couple<String,Integer>> result = new ArrayList<Couple<String,Integer>>();
 		Iterator<Node> ite = g.getNodeIterator();
 		Node x;
 		boolean b;
 		while(ite.hasNext()) {
 			x=ite.next();
 			
-			if(x.getAttribute("ui.label")!=null && (int)x.getAttribute("tresor")!=0) {
+			if(x.getAttribute("ui.label")!=null && (int)x.getAttribute("tresor")!=0 ) {
 				String s = x.getAttribute("ui.class");
 				b = s!=null;
-				result.add(new Case(x.getAttribute("ui.label"), x.getAttribute("tresor"), x.getAttribute("serrure"), x.getAttribute("force"), b,x.getAttribute("date")));
+				result.add(new Couple<String,Integer>(x.getAttribute("ui.label"),x.getAttribute("serrure")));
 			}
 		}
-		return result;
+		result.sort(
+			new Comparator<Couple<String,Integer>>() {
+		      
+	        @Override
+	        public int compare(Couple<String,Integer> e1, Couple<String,Integer> e2) {
+	        	if(e1.getRight()<e2.getRight()) {
+	        		return -1;
+	        	}
+	        	else if(e1.getRight()>e2.getRight()) {
+	        		return 1 ;
+	        	}
+	            return Integer.parseInt(e1.getLeft())-Integer.parseInt(e2.getLeft());
+	        }});
+		List<String> l = new ArrayList<String>();
+		for(int i =0; i < result.size();i++) {
+			l.add(l.size(), result.get(i).getLeft());
+		}
+		return l;
 	}
 	public List<String> getAlltreasureClosed(){
 		List<Couple<String,Integer>> result = new ArrayList<Couple<String,Integer>>();
