@@ -80,6 +80,28 @@ public class ExploreMultiAgent extends AbstractDedaleAgent implements ExploAgent
 	public boolean explore() {
 		return x.explore();
 	}
+
+	@Override
+	public void moveRandom() {
+		x.move_random();
+		
+	}
+
+	@Override
+	public boolean isDroping() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void dropped() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
+	
+	
 	
 	
 	

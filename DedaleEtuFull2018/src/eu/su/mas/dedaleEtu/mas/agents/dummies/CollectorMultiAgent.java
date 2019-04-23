@@ -69,6 +69,25 @@ public class CollectorMultiAgent extends AbstractDedaleAgent implements ExploAge
 	public boolean explore() {
 		return x.explore();
 	}
+
+	@Override
+	public void moveRandom() {
+		x.move_random();
+		
+	}
+
+	@Override
+	public boolean isDroping() {
+		return x.isDroping();
+	}
+
+	@Override
+	public void dropped() {
+		x.dropped();
+		
+	}
+
+	
 	
 	
 	

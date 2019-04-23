@@ -87,6 +87,25 @@ public class DummyTankerAgent extends AbstractDedaleAgent implements ExploAgent{
 	public boolean explore() {
 		return x.explore();
 	}
+
+	@Override
+	public void moveRandom() {
+		x.move_random();
+		
+	}
+
+	@Override
+	public boolean isDroping() {
+		return false;
+	}
+
+	@Override
+	public void dropped() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
 }
 
 
@@ -219,7 +238,7 @@ class TankerBehaviour extends ExploMultiBehaviour{
 	@Override
 	public void action() {
 		try {
-			Thread.sleep(80);
+			Thread.sleep(100);
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -267,12 +286,25 @@ class TankerBehaviour extends ExploMultiBehaviour{
 	
 				} 
 			}else {
-				block();
+				message();
 			}
 
 			
 		}
 
+	}
+	private void message() {
+		ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+		msg.setSender(this.myAgent.getAID());
+		msg.setProtocol("TANKER");
+		String c  = this.myAgent.getName();
+		msg.setContent(c);
+		for (int i = 0; i < agentNames.size(); i++) {
+			if (!agentNames.get(i).equals(myAgent.getAID().getName())) {
+				msg.addReceiver(new AID(agentNames.get(i), AID.ISLOCALNAME));
+			}
+		}
+		((AbstractDedaleAgent) this.myAgent).sendMessage(msg);
 	}
 	@Override
 	public boolean ramasser(List<Couple<String, List<Couple<Observation, Integer>>>> lobs) {
@@ -379,7 +411,7 @@ class TankerBehaviour extends ExploMultiBehaviour{
 
 	}
 
-	protected void move_random() {
+	public void move_random() {
 		List<Couple<String, List<Couple<Observation, Integer>>>> lobs = ((AbstractDedaleAgent) this.myAgent).observe();// myPosition
 		Random r = new Random();
 		int x = r.nextInt(lobs.size());

@@ -73,16 +73,17 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 		
 
 		public synchronized void action() {
+			final MessageTemplate msgTemplate = MessageTemplate.MatchPerformative(ACLMessage.INFORM);			
+			final ACLMessage msg = this.myAgent.receive(msgTemplate);
 			if(myMap!=null) {
 				if(!myMap.is_complete()) {
-					final MessageTemplate msgTemplate = MessageTemplate.MatchPerformative(ACLMessage.INFORM);			
-					final ACLMessage msg = this.myAgent.receive(msgTemplate);
+					
 					if (msg != null) {
 						if(msg.getProtocol().equals("CLASSIQUE")) {
 							try {
 								Couple<List<Case>,List<Couple<String,String>>> c = (Couple<List<Case>,List<Couple<String,String>>>) msg.getContentObject();
 								if(((ExploAgent) myAgent).explore()) {
-									messageClassique(c);
+									//messageClassique(c);
 								}
 								
 		
@@ -97,6 +98,18 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 							block();
 					}
 				}
+				else if(msg!=null) {
+					if(msg.getProtocol().equals("TANKER")) {
+				
+						if(((ExploAgent)myAgent).isDroping()) {
+							((AbstractDedaleAgent)myAgent).emptyMyBackPack(msg.getContent());
+							((ExploAgent)myAgent).dropped();
+							System.out.println("laché");
+							
+						}
+					}
+				}
+				
 			}
 		}
 

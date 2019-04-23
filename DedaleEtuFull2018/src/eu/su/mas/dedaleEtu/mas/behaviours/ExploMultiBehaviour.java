@@ -353,7 +353,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 
 	}
 
-	protected void move_random() {
+	public void move_random() {
 		List<Couple<String, List<Couple<Observation, Integer>>>> lobs = ((AbstractDedaleAgent) this.myAgent).observe();// myPosition
 		Random r = new Random();
 		int x = r.nextInt(lobs.size());
