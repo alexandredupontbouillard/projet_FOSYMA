@@ -240,7 +240,6 @@ class TankerBehaviour extends ExploMultiBehaviour{
 		try {
 			Thread.sleep(100);
 		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		if (this.myMap == null) {
@@ -249,7 +248,6 @@ class TankerBehaviour extends ExploMultiBehaviour{
 
 		setmap();
 		List<Couple<String, List<Couple<Observation, Integer>>>> lobs = ((AbstractDedaleAgent) this.myAgent).observe();
-		
 		
 		
 		if (!myMap.is_complete()) {
@@ -271,9 +269,9 @@ class TankerBehaviour extends ExploMultiBehaviour{
 
 		}
 		else {
+
 			if(siloPos.equals("nopos")) {
 				List<String> tran = myMap.syloPose();
-				System.out.println(tran + myAgent.getName());
 				siloPos = tran.get(tran.size()-1);
 			}
 			if(! ((AbstractDedaleAgent)myAgent).getCurrentPosition().equals(siloPos)) {
@@ -282,10 +280,11 @@ class TankerBehaviour extends ExploMultiBehaviour{
 				List<String> pl = myMap.getShortestPath(((AbstractDedaleAgent)myAgent).getCurrentPosition(), siloPos);
 				if (pl.size() >0) {
 					String nextNode = pl.get(0);
-					((AbstractDedaleAgent)myAgent).moveTo(nextNode);
+					moveTo(nextNode);
 	
 				} 
 			}else {
+
 				message();
 			}
 
@@ -300,7 +299,8 @@ class TankerBehaviour extends ExploMultiBehaviour{
 		String c  = this.myAgent.getName();
 		msg.setContent(c);
 		for (int i = 0; i < agentNames.size(); i++) {
-			if (!agentNames.get(i).equals(myAgent.getAID().getName())) {
+			if (!agentNames.get(i).equals(myAgent.getAID().getLocalName())) {
+				
 				msg.addReceiver(new AID(agentNames.get(i), AID.ISLOCALNAME));
 			}
 		}

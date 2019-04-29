@@ -95,7 +95,7 @@ public final class ConfigurationFile {
 	
 	/**true if a grid environment should be generated, false otherwise (A dogoronev env is generated)**/
 	public static boolean ENVIRONMENTisGRID=true;
-	public static boolean ACTIVE_WELL=false;
+	public static boolean ACTIVE_WELL=true;
 	public static boolean ACTIVE_GOLD=true;
 	public static boolean ACTIVE_DIAMOND=false;
 	

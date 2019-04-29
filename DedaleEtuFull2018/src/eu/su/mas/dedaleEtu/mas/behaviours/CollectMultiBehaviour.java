@@ -88,7 +88,7 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 			msg.setProtocol("CLASSIQUE");
 			msg.setContentObject((Serializable) c);
 			for (int i = 0; i < agentNames.size(); i++) {
-				if (!agentNames.get(i).equals(myAgent.getAID().getName())) {
+				if (!agentNames.get(i).equals(myAgent.getAID().getLocalName())) {
 					msg.addReceiver(new AID(agentNames.get(i), AID.ISLOCALNAME));
 				}
 			}
@@ -182,7 +182,6 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 
 		} else {
 			List<String> treasure_list = myMap.getAlltreasure();
-			System.out.println(treasure_list + myAgent.getName());
 			if (ramasser(lobs,treasure_list)) {
 				
 				String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
@@ -202,8 +201,7 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 					for (int i = 0; i < 10; i++) {
 						move_random();
 					}
-					System.out.println("ça va pas");
-					//finished = true;
+					finished = true;
 					
 				}
 			}
@@ -227,8 +225,16 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 
 				}else {
 					
-					gotosilo = false;
+					
 					isDroping = true;
+					Random r=new Random();
+					int x =r.nextInt(2);
+					if(x==1) {
+						move_random();
+						isDroping=false;
+					}
+					
+					
 				}
 				
 				return false;
@@ -245,10 +251,10 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 						lobs = ((AbstractDedaleAgent) this.myAgent).observe();
 						h=transfoLobs(lobs.get(0).getRight());
 						if (h.get(1) == 1) {
+							System.out.println("yoyoyoyoyoyo");
 							((AbstractDedaleAgent)myAgent).pick();
-							System.out.println("recup \n \n \n \n recup");
+							lobs = ((AbstractDedaleAgent) this.myAgent).observe();
 								gotosilo = true;
-							
 							addNodeMypos(lobs);
 							
 	

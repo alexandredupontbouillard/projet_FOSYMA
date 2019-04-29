@@ -1,1 +1,1 @@
-http://LAPTOP-QHJ2VGIK:7778/acc
+http://192.168.0.28:7778/acc
