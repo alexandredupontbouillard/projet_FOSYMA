@@ -40,6 +40,7 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 	private List<String> objectives;
 	private boolean gotosilo=false;
 	private boolean isDroping=false;
+	private boolean siloOnpose=false;
 
 	public CollectMultiBehaviour(final AbstractDedaleAgent myagent, MapRepresentation myMap, List<String> agentNames) {
 		super(myagent);
@@ -47,7 +48,6 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 		this.openNodes = new ArrayList<String>();
 		this.closedNodes = new HashSet<String>();
 		this.agentNames = agentNames;
-		
 		
 
 	}
@@ -143,13 +143,17 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 				result.set(3, lobs.get(i).getRight());
 			}
 		}
+		if(result.size()>4) {
+			System.out.println(" bug bug bug \n \n \n \n \n bug");
+		}
+		System.out.println(result);
 		return result;
 	}
 
 	@Override
 	public synchronized void action() {
 		try {
-			Thread.sleep(100);
+			Thread.sleep(300);
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -183,7 +187,7 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 		} else {
 			List<String> treasure_list = myMap.getAlltreasure();
 			if (ramasser(lobs,treasure_list)) {
-				
+				System.out.println(treasure_list);
 				String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
 				if (treasure_list.size() > 0) {
 					
@@ -204,9 +208,10 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 					finished = true;
 					
 				}
+				majMapComplete(lobs.get(0));
 			}
 
-			majMapComplete(lobs.get(0));
+			
 			sendClassicMessage();
 
 		}
@@ -219,6 +224,7 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 			}
 			if(gotosilo) {
 				List<String> pl = this.myMap.getShortestPathToClosestNode(((AbstractDedaleAgent)myAgent).getCurrentPosition(), objectives);
+				System.out.println("gotosilo");
 				if (pl.size() > 0) {
 					String nextNode = pl.get(0);
 					moveTo(nextNode);
@@ -229,7 +235,7 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 					isDroping = true;
 					Random r=new Random();
 					int x =r.nextInt(2);
-					if(x==1) {
+					if(x==1 && !siloOnpose) {
 						move_random();
 						isDroping=false;
 					}
@@ -244,30 +250,31 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 					ArrayList<Integer> h = transfoLobs(lobs.get(0).getRight());
 				
 					if (h.get(0) > 0) {
-						if (h.get(1) != 1) {
-							((AbstractDedaleAgent) this.myAgent).openLock(Observation.GOLD);
-							
-						}
+						
+						((AbstractDedaleAgent) this.myAgent).openLock(Observation.GOLD);
+						
+						
 						lobs = ((AbstractDedaleAgent) this.myAgent).observe();
 						h=transfoLobs(lobs.get(0).getRight());
 						if (h.get(1) == 1) {
 							System.out.println("yoyoyoyoyoyo");
 							((AbstractDedaleAgent)myAgent).pick();
+							
 							lobs = ((AbstractDedaleAgent) this.myAgent).observe();
-								gotosilo = true;
-							addNodeMypos(lobs);
-							
+							gotosilo = true;
+						addNodeMypos(lobs);
+						
 	
 							
 	
-						} 
+						}return false;
 							
 						
 					}return false;
-				}
+				}return true;
 			
 			}
-			return true;
+			return false;
 		}
 			
 	
@@ -391,4 +398,7 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 			gotosilo=false;
 		}
 		
+		public void siloOnpose() {
+			siloOnpose = true;
+		}
 }

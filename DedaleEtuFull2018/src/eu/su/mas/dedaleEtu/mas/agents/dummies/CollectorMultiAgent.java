@@ -86,6 +86,9 @@ public class CollectorMultiAgent extends AbstractDedaleAgent implements ExploAge
 		x.dropped();
 		
 	}
+	public void siloOnpose() {
+		x.siloOnpose();
+	}
 
 	
 	

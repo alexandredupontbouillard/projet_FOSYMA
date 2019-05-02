@@ -11,6 +11,7 @@ import javax.swing.text.AbstractDocument.Content;
 import dataStructures.tuple.Couple;
 import eu.su.mas.dedale.env.Observation;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
+import eu.su.mas.dedaleEtu.mas.agents.dummies.CollectorMultiAgent;
 import eu.su.mas.dedaleEtu.mas.agents.dummies.DummyTankerAgent;
 import eu.su.mas.dedaleEtu.mas.agents.dummies.ExploreMultiAgent;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
@@ -103,13 +104,14 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 						if(((ExploAgent)myAgent).isDroping()) {
 							((AbstractDedaleAgent)myAgent).emptyMyBackPack(msg.getContent());
 							((ExploAgent)myAgent).dropped();
-							
+							((CollectorMultiAgent)myAgent).siloOnpose();
 						}
 					}
 				}
 				
 				
 			}
+			block();
 		}
 		
 
