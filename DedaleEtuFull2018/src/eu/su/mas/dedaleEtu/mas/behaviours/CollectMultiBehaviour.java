@@ -208,7 +208,7 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 					finished = true;
 					
 				}
-				majMapComplete(lobs.get(0));
+				addNodeMypos(lobs);
 			}
 
 			
@@ -248,7 +248,7 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 			else if (obj.size()>0) {
 				if(((AbstractDedaleAgent)myAgent).getCurrentPosition().equals(obj.get(0))) {
 					ArrayList<Integer> h = transfoLobs(lobs.get(0).getRight());
-				
+					addNodeMypos(lobs);
 					if (h.get(0) > 0) {
 						
 						((AbstractDedaleAgent) this.myAgent).openLock(Observation.GOLD);
