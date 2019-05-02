@@ -20,7 +20,7 @@ import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import message.Case;
 
-public class CollectMultiBehaviour extends SimpleBehaviour{
+public class CollectMultiBehaviour extends SimpleBehaviour {
 	private static final long serialVersionUID = 8567689731496787661L;
 
 	private boolean finished = false;
@@ -38,9 +38,9 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 	private Set<String> closedNodes;
 	protected List<String> agentNames;
 	private List<String> objectives;
-	private boolean gotosilo=false;
-	private boolean isDroping=false;
-	private boolean siloOnpose=false;
+	private boolean gotosilo = false;
+	private boolean isDroping = false;
+	private boolean siloOnpose = false;
 
 	public CollectMultiBehaviour(final AbstractDedaleAgent myagent, MapRepresentation myMap, List<String> agentNames) {
 		super(myagent);
@@ -48,10 +48,10 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 		this.openNodes = new ArrayList<String>();
 		this.closedNodes = new HashSet<String>();
 		this.agentNames = agentNames;
-		
 
 	}
 
+	// mise à jour de la map en fonction des cases reçues
 	public void maj(List<Case> open, List<Case> closed) {
 		for (int i = 0; i < closed.size(); i++) {
 			if (!closedNodes.contains(closed.get(i).getId())) {
@@ -74,7 +74,8 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 		}
 	}
 
-
+	// envoit un message à tous les agents, avec comme contenu la représentation de
+	// la carte
 	public void sendClassicMessage() {
 		ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 		msg.setSender(this.myAgent.getAID());
@@ -101,10 +102,13 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 
 	}
 
+	// fonction qui permet de savoir si l'agent est en état d'exploration ou de
+	// récolte
 	public boolean explore() {
 		return !myMap.is_complete();
 	}
 
+	// ajoute les informations du noeud position dans la carte
 	public void addNodeMypos(List<Couple<String, List<Couple<Observation, Integer>>>> lobs) {
 		int tresor = 0;
 		int serrure = 0;
@@ -117,33 +121,34 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 			serrure = h.get(2);
 			force = h.get(3);
 			ouvert = h.get(1) == 1;
-			
+
 		}
-		
+
 		c = new Case(lobs.get(0).getLeft(), tresor, serrure, force, false, ouvert);
-		
+
 		this.myMap.addNode(c);
-		
-		
+
 	}
-	public ArrayList<Integer> transfoLobs(List<Couple<Observation, Integer>> lobs){
+
+	// transforme l'observation en une liste de caractéristique
+	public ArrayList<Integer> transfoLobs(List<Couple<Observation, Integer>> lobs) {
 		ArrayList<Integer> result = new ArrayList<Integer>();
 		result.add(0);
 		result.add(0);
 		result.add(0);
 		result.add(0);
-		for(int i =0 ; i<lobs.size();i++) {
-			if(lobs.get(i).getLeft() == Observation.GOLD) {
+		for (int i = 0; i < lobs.size(); i++) {
+			if (lobs.get(i).getLeft() == Observation.GOLD) {
 				result.set(0, lobs.get(i).getRight());
-			}else if(lobs.get(i).getLeft() == Observation.LOCKSTATUS) {
+			} else if (lobs.get(i).getLeft() == Observation.LOCKSTATUS) {
 				result.set(1, lobs.get(i).getRight());
-			}else if(lobs.get(i).getLeft() == Observation.LOCKPICKING) {
+			} else if (lobs.get(i).getLeft() == Observation.LOCKPICKING) {
 				result.set(2, lobs.get(i).getRight());
-			}else if(lobs.get(i).getLeft() == Observation.STRENGH) {
+			} else if (lobs.get(i).getLeft() == Observation.STRENGH) {
 				result.set(3, lobs.get(i).getRight());
 			}
 		}
-		if(result.size()>4) {
+		if (result.size() > 4) {
 			System.out.println(" bug bug bug \n \n \n \n \n bug");
 		}
 		System.out.println(result);
@@ -164,9 +169,8 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 
 		setmap();
 		List<Couple<String, List<Couple<Observation, Integer>>>> lobs = ((AbstractDedaleAgent) this.myAgent).observe();
-		
-		
-		
+
+		// exploration de la carte
 		if (!myMap.is_complete()) {
 			// 0) Retrieve the current position
 			String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
@@ -184,221 +188,221 @@ public class CollectMultiBehaviour extends SimpleBehaviour{
 					deplacement_explo(lobs, myPosition);
 			}
 
-		} else {
+		}
+		// recolte de la carte
+		else {
 			List<String> treasure_list = myMap.getAlltreasure();
-			if (ramasser(lobs,treasure_list)) {
-				System.out.println(treasure_list);
+			if (ramasser(lobs, treasure_list)) {
+				// ramasser renvoit true donc on peut se diriger vers le prochain trésor à
+				// recolter
 				String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
 				if (treasure_list.size() > 0) {
-					
+
 					List<String> pl = this.myMap.getShortestPath(myPosition, treasure_list.get(0));
-					if (pl.size() >3) {
+					if (pl.size() > 3) {
 						String nextNode = pl.get(0);
 						moveTo(nextNode);
 
-					} 
-					else if(pl.size() >0) {
+					} else if (pl.size() > 0) {
 						String nextNode = pl.get(0);
-						((AbstractDedaleAgent)myAgent).moveTo(nextNode);
+						((AbstractDedaleAgent) myAgent).moveTo(nextNode);
 					}
 				} else {
 					for (int i = 0; i < 10; i++) {
 						move_random();
 					}
 					finished = true;
-					
+
 				}
 				addNodeMypos(lobs);
 			}
 
-			
 			sendClassicMessage();
+
+		}
+
+	} // renvoit true si la prochaine chose à faire est d'aller vers un trésor, sinon
+		// la méthode dirige l'agent dans la bonne direction et renvoit false
+
+	protected boolean ramasser(List<Couple<String, List<Couple<Observation, Integer>>>> lobs, List<String> obj) {
+		if (objectives == null) {
+			objectives = myMap.syloPose();
+
+		}
+		if (gotosilo) {
+			List<String> pl = this.myMap
+					.getShortestPathToClosestNode(((AbstractDedaleAgent) myAgent).getCurrentPosition(), objectives);
+			System.out.println("gotosilo");
+			if (pl.size() > 0) {
+				String nextNode = pl.get(0);
+				moveTo(nextNode);
+
+			} else {
+
+				isDroping = true;
+				Random r = new Random();
+				int x = r.nextInt(2);
+				if (x == 1 && !siloOnpose) {
+					move_random();
+					isDroping = false;
+				}
+
+			}
+
+			return false;
+		} else if (obj.size() > 0) {
+			if (((AbstractDedaleAgent) myAgent).getCurrentPosition().equals(obj.get(0))) {
+				ArrayList<Integer> h = transfoLobs(lobs.get(0).getRight());
+				addNodeMypos(lobs);
+				if (h.get(0) > 0) {
+
+					((AbstractDedaleAgent) this.myAgent).openLock(Observation.GOLD);
+
+					lobs = ((AbstractDedaleAgent) this.myAgent).observe();
+					h = transfoLobs(lobs.get(0).getRight());
+					if (h.get(1) == 1) {
+						System.out.println("yoyoyoyoyoyo");
+						((AbstractDedaleAgent) myAgent).pick();
+
+						lobs = ((AbstractDedaleAgent) this.myAgent).observe();
+						gotosilo = true;
+						addNodeMypos(lobs);
+
+					}
+					return false;
+
+				}
+				return false;
+			}
+			return true;
+
+		}
+		return false;
+	}
+
+	// fonction correspondant à un déplacement d'exploration
+	public void deplacement_explo(List<Couple<String, List<Couple<Observation, Integer>>>> lobs, String myPosition) {
+		String nextNode = null;
+		majMap(lobs, myPosition);
+		if (this.openNodes.isEmpty()) {
+			myMap.set_complete();
+
+			System.out.println("Exploration successufully done" + myAgent.getName());
+		} else {
+
+			List<String> pl = this.myMap.getShortestPathToClosestNode(myPosition, openNodes);
+			if (pl.size() > 0) {
+				nextNode = pl.get(0);
+				moveTo(nextNode);
+
+			}
 
 		}
 
 	}
-		protected boolean ramasser(List<Couple<String, List<Couple<Observation, Integer>>>> lobs,List<String> obj) {
-			if(objectives==null) {
-				objectives = myMap.syloPose();
-				
-			}
-			if(gotosilo) {
-				List<String> pl = this.myMap.getShortestPathToClosestNode(((AbstractDedaleAgent)myAgent).getCurrentPosition(), objectives);
-				System.out.println("gotosilo");
-				if (pl.size() > 0) {
-					String nextNode = pl.get(0);
-					moveTo(nextNode);
 
-				}else {
-					
-					
-					isDroping = true;
-					Random r=new Random();
-					int x =r.nextInt(2);
-					if(x==1 && !siloOnpose) {
-						move_random();
-						isDroping=false;
+	protected void majMapComplete(Couple<String, List<Couple<Observation, Integer>>> lobs) {
+		int tresor;
+		int serrure;
+		int force;
+		boolean ouvert;
+		String nodeId = lobs.getLeft();
+		tresor = 0;
+		serrure = 0;
+		force = 0;
+		ouvert = false;
+		Case c;
+		if (lobs.getRight().size() > 0) {
+			tresor = lobs.getRight().get(0).getRight();
+			serrure = lobs.getRight().get(3).getRight();
+			force = lobs.getRight().get(2).getRight();
+			ouvert = lobs.getRight().get(1).getRight() == 1;
+
+		}
+		c = new Case(nodeId, tresor, serrure, force, false, ouvert);
+		this.myMap.addNode(c);
+
+	}
+
+	protected void majMap(List<Couple<String, List<Couple<Observation, Integer>>>> lobs, String myPosition) {
+		int tresor;
+		int serrure;
+		int force;
+		boolean ouvert;
+		Iterator<Couple<String, List<Couple<Observation, Integer>>>> iter = lobs.iterator();
+		while (iter.hasNext()) {
+			Couple<String, List<Couple<Observation, Integer>>> elem = iter.next();
+			String nodeId = elem.getLeft();
+			if (!this.closedNodes.contains(nodeId)) {
+				if (!this.openNodes.contains(nodeId)) {
+					this.openNodes.add(nodeId);
+					tresor = 0;
+					serrure = 0;
+					force = 0;
+					ouvert = false;
+					Case c;
+					if (elem.getRight().size() > 0) {
+						tresor = elem.getRight().get(0).getRight();
+						serrure = elem.getRight().get(3).getRight();
+						force = elem.getRight().get(2).getRight();
+						ouvert = elem.getRight().get(1).getRight() == 1;
+
 					}
-					
-					
+					c = new Case(nodeId, tresor, serrure, force, true, ouvert);
+					this.myMap.addNode(c);
+
+					this.myMap.addEdge(myPosition, nodeId);
+				} else {
+					// the node exist, but not necessarily the edge
+					this.myMap.addEdge(myPosition, nodeId);
 				}
-				
-				return false;
 			}
-			else if (obj.size()>0) {
-				if(((AbstractDedaleAgent)myAgent).getCurrentPosition().equals(obj.get(0))) {
-					ArrayList<Integer> h = transfoLobs(lobs.get(0).getRight());
-					addNodeMypos(lobs);
-					if (h.get(0) > 0) {
-						
-						((AbstractDedaleAgent) this.myAgent).openLock(Observation.GOLD);
-						
-						
-						lobs = ((AbstractDedaleAgent) this.myAgent).observe();
-						h=transfoLobs(lobs.get(0).getRight());
-						if (h.get(1) == 1) {
-							System.out.println("yoyoyoyoyoyo");
-							((AbstractDedaleAgent)myAgent).pick();
-							
-							lobs = ((AbstractDedaleAgent) this.myAgent).observe();
-							gotosilo = true;
-						addNodeMypos(lobs);
-						
-	
-							
-	
-						}return false;
-							
-						
-					}return false;
-				}return true;
-			
-			}
-			return false;
 		}
-			
-	
+		sendClassicMessage();
+	}
 
-		public void deplacement_explo(List<Couple<String, List<Couple<Observation, Integer>>>> lobs, String myPosition) {
-			String nextNode = null;
-			majMap(lobs, myPosition);
-			if (this.openNodes.isEmpty()) {
-				myMap.set_complete();
+	@Override
+	public boolean done() {
+		return finished;
+	}
 
-				System.out.println("Exploration successufully done" + myAgent.getName());
-			} else {
-
-				List<String> pl = this.myMap.getShortestPathToClosestNode(myPosition, openNodes);
-				if (pl.size() > 0) {
-					nextNode = pl.get(0);
-					moveTo(nextNode);
-
-				}
-
+	protected void moveTo(String id) {
+		boolean b = ((AbstractDedaleAgent) this.myAgent).moveTo(id);
+		if (!b) {
+			for (int i = 0; i < 3; i++) {
+				move_random();
 			}
 
 		}
 
-		protected void majMapComplete(Couple<String, List<Couple<Observation, Integer>>> lobs) {
-			int tresor;
-			int serrure;
-			int force;
-			boolean ouvert;
-				String nodeId = lobs.getLeft();
-				tresor = 0;
-				serrure = 0;
-				force = 0;
-				ouvert = false;
-				Case c;
-				if (lobs.getRight().size() > 0) {
-					tresor = lobs.getRight().get(0).getRight();
-					serrure = lobs.getRight().get(3).getRight();
-					force = lobs.getRight().get(2).getRight();
-					ouvert = lobs.getRight().get(1).getRight() == 1;
+	}
 
-				}
-				c = new Case(nodeId, tresor, serrure, force, false, ouvert);
-				this.myMap.addNode(c);
+	public void move_random() {
+		List<Couple<String, List<Couple<Observation, Integer>>>> lobs = ((AbstractDedaleAgent) this.myAgent).observe();// myPosition
+		Random r = new Random();
+		int x = r.nextInt(lobs.size());
+		((AbstractDedaleAgent) this.myAgent).moveTo(lobs.get(x).getLeft());
+	}
 
-			
-		}
+	public void setmap() {
+		((CollectorMultiAgent) this.myAgent).setMap(myMap);
+	}
 
-		protected void majMap(List<Couple<String, List<Couple<Observation, Integer>>>> lobs, String myPosition) {
-			int tresor;
-			int serrure;
-			int force;
-			boolean ouvert;
-			Iterator<Couple<String, List<Couple<Observation, Integer>>>> iter = lobs.iterator();
-			while (iter.hasNext()) {
-				Couple<String, List<Couple<Observation, Integer>>> elem = iter.next();
-				String nodeId = elem.getLeft();
-				if (!this.closedNodes.contains(nodeId)) {
-					if (!this.openNodes.contains(nodeId)) {
-						this.openNodes.add(nodeId);
-						tresor = 0;
-						serrure = 0;
-						force = 0;
-						ouvert = false;
-						Case c;
-						if (elem.getRight().size() > 0) {
-							tresor = elem.getRight().get(0).getRight();
-							serrure = elem.getRight().get(3).getRight();
-							force = elem.getRight().get(2).getRight();
-							ouvert = elem.getRight().get(1).getRight() == 1;
+	// permet de savoir lors de la reception d'un message TANKER si l'agent cherche
+	// à déposer
+	public boolean isDroping() {
+		return isDroping;
+	}
 
-						}
-						c = new Case(nodeId, tresor, serrure, force, true, ouvert);
-						this.myMap.addNode(c);
+	// méthode à appeler si un agent à laché le trésor récupéré
+	public void dropped() {
+		isDroping = false;
+		gotosilo = false;
+	}
 
-						this.myMap.addEdge(myPosition, nodeId);
-					} else {
-						// the node exist, but not necessarily the edge
-						this.myMap.addEdge(myPosition, nodeId);
-					}
-				}
-			}
-			sendClassicMessage();
-		}
-
-		@Override
-		public boolean done() {
-			return finished;
-		}
-
-		protected void moveTo(String id) {
-			boolean b = ((AbstractDedaleAgent) this.myAgent).moveTo(id);
-			if (!b) {
-				for (int i = 0; i < 3; i++) {
-					move_random();
-				}
-
-			}
-
-		}
-
-		public void move_random() {
-			List<Couple<String, List<Couple<Observation, Integer>>>> lobs = ((AbstractDedaleAgent) this.myAgent).observe();// myPosition
-			Random r = new Random();
-			int x = r.nextInt(lobs.size());
-			((AbstractDedaleAgent) this.myAgent).moveTo(lobs.get(x).getLeft());
-		}
-
-		public boolean ramasser() {
-			// TODO Auto-generated method stub
-			return false;
-		}
-		public void setmap() {
-			((CollectorMultiAgent) this.myAgent).setMap(myMap);
-		}
-		public boolean isDroping() {
-			return isDroping;
-		}
-		public void dropped() {
-			isDroping = false;
-			gotosilo=false;
-		}
-		
-		public void siloOnpose() {
-			siloOnpose = true;
-		}
+	// méthode à appeler pour indiquer que le silo a finit son exploration et est
+	// prêt à recevoir
+	public void siloOnpose() {
+		siloOnpose = true;
+	}
 }

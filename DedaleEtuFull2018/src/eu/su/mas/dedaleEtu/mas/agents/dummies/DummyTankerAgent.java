@@ -1,6 +1,5 @@
 package eu.su.mas.dedaleEtu.mas.agents.dummies;
 
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -28,47 +27,42 @@ import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
 import message.Case;
 
-
 /**
- * Dummy Tanker agent. It does nothing more than printing what it observes every 10s and receiving the treasures from other agents. 
- * <br/>
- * Note that this last behaviour is hidden, every tanker agent automatically possess it.
+ * Dummy Tanker agent. It does nothing more than printing what it observes every
+ * 10s and receiving the treasures from other agents. <br/>
+ * Note that this last behaviour is hidden, every tanker agent automatically
+ * possess it.
  * 
  * @author hc
  *
  */
-public class DummyTankerAgent extends AbstractDedaleAgent implements ExploAgent{
+public class DummyTankerAgent extends AbstractDedaleAgent implements ExploAgent {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -1784844593772918359L;
 
-
-
-	
-	
 	protected List<String> agentNames;
 	protected TankerBehaviour x;
 	protected TankerMultiReceiveBehaviour y;
 
-
 	protected MapRepresentation myMap;
-	protected void setup(){
+
+	protected void setup() {
 		super.setup();
 		Object[] args = getArguments();
-		List<Behaviour> lb=new ArrayList<Behaviour>();
-		if(args.length!=0) {
+		List<Behaviour> lb = new ArrayList<Behaviour>();
+		if (args.length != 0) {
 			agentNames = (ArrayList<String>) args[2];
-			x = new TankerBehaviour(this,this.myMap,agentNames);
-			y=new TankerMultiReceiveBehaviour(this);
+			x = new TankerBehaviour(this, this.myMap, agentNames);
+			y = new TankerMultiReceiveBehaviour(this);
 			lb.add(y);
 			lb.add(x);
 		}
-		addBehaviour(new startMyBehaviours(this,lb));
-		
-		System.out.println("the  agent "+this.getLocalName()+ " is started");
+		addBehaviour(new startMyBehaviours(this, lb));
 
+		System.out.println("the  agent " + this.getLocalName() + " is started");
 
 	}
 
@@ -79,11 +73,12 @@ public class DummyTankerAgent extends AbstractDedaleAgent implements ExploAgent{
 	public void maj(List<Case> open, List<Case> closed) {
 		x.maj(open, closed);
 	}
-	
+
 	public void setMap(MapRepresentation map) {
 		myMap = map;
-		//y.setMap(myMap);
+		// y.setMap(myMap);
 	}
+
 	public boolean explore() {
 		return x.explore();
 	}
@@ -91,7 +86,7 @@ public class DummyTankerAgent extends AbstractDedaleAgent implements ExploAgent{
 	@Override
 	public void moveRandom() {
 		x.move_random();
-		
+
 	}
 
 	@Override
@@ -102,26 +97,23 @@ public class DummyTankerAgent extends AbstractDedaleAgent implements ExploAgent{
 	@Override
 	public void dropped() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
-	
 }
-
 
 /**************************************
  * 
  * 
- * 				BEHAVIOUR
+ * BEHAVIOUR
  * 
  * 
  **************************************/
 
-
-class TankerBehaviour extends ExploMultiBehaviour{
+class TankerBehaviour extends ExploMultiBehaviour {
 	/**
 	 * When an agent choose to migrate all its components should be serializable
-	 *  
+	 * 
 	 */
 	private boolean finished = false;
 	protected ArrayList<String> openNodes;
@@ -133,15 +125,16 @@ class TankerBehaviour extends ExploMultiBehaviour{
 	private Set<String> closedNodes;
 	private static final long serialVersionUID = 9088209402507795289L;
 	protected List<String> agentNames;
-	private String siloPos="nopos";
+	private String siloPos = "nopos";
+
 	public TankerBehaviour(final AbstractDedaleAgent myagent, MapRepresentation myMap, List<String> agentNames) {
-		super(myagent,myMap,agentNames);
+		super(myagent, myMap, agentNames);
 		this.openNodes = new ArrayList<String>();
 		this.closedNodes = new HashSet<String>();
 		this.agentNames = agentNames;
-		
 
 	}
+
 	public void maj(List<Case> open, List<Case> closed) {
 		for (int i = 0; i < closed.size(); i++) {
 			if (!closedNodes.contains(closed.get(i).getId())) {
@@ -163,7 +156,6 @@ class TankerBehaviour extends ExploMultiBehaviour{
 			}
 		}
 	}
-
 
 	public void sendClassicMessage() {
 		ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
@@ -207,34 +199,35 @@ class TankerBehaviour extends ExploMultiBehaviour{
 			serrure = h.get(2);
 			force = h.get(3);
 			ouvert = h.get(1) == 1;
-			
+
 		}
-		
+
 		c = new Case(lobs.get(0).getLeft(), tresor, serrure, force, false, ouvert);
-		
+
 		this.myMap.addNode(c);
-		
-		
+
 	}
-	public ArrayList<Integer> transfoLobs(List<Couple<Observation, Integer>> lobs){
+
+	public ArrayList<Integer> transfoLobs(List<Couple<Observation, Integer>> lobs) {
 		ArrayList<Integer> result = new ArrayList<Integer>();
 		result.add(0);
 		result.add(0);
 		result.add(0);
 		result.add(0);
-		for(int i =0 ; i<lobs.size();i++) {
-			if(lobs.get(i).getLeft() == Observation.GOLD) {
+		for (int i = 0; i < lobs.size(); i++) {
+			if (lobs.get(i).getLeft() == Observation.GOLD) {
 				result.set(0, lobs.get(i).getRight());
-			}else if(lobs.get(i).getLeft() == Observation.LOCKSTATUS) {
+			} else if (lobs.get(i).getLeft() == Observation.LOCKSTATUS) {
 				result.set(1, lobs.get(i).getRight());
-			}else if(lobs.get(i).getLeft() == Observation.LOCKPICKING) {
+			} else if (lobs.get(i).getLeft() == Observation.LOCKPICKING) {
 				result.set(2, lobs.get(i).getRight());
-			}else if(lobs.get(i).getLeft() == Observation.STRENGH) {
+			} else if (lobs.get(i).getLeft() == Observation.STRENGH) {
 				result.set(3, lobs.get(i).getRight());
 			}
 		}
 		return result;
 	}
+
 	@Override
 	public void action() {
 		try {
@@ -248,8 +241,7 @@ class TankerBehaviour extends ExploMultiBehaviour{
 
 		setmap();
 		List<Couple<String, List<Couple<Observation, Integer>>>> lobs = ((AbstractDedaleAgent) this.myAgent).observe();
-		
-		
+
 		if (!myMap.is_complete()) {
 			// 0) Retrieve the current position
 			String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
@@ -267,45 +259,45 @@ class TankerBehaviour extends ExploMultiBehaviour{
 					deplacement_explo(lobs, myPosition);
 			}
 
-		}
-		else {
-
-			if(siloPos.equals("nopos")) {
+		} else {
+			// le tanker à finit son exploration donc se dirig jusqu'à sa position avant
+			// d'envoyer des messages en boucle
+			if (siloPos.equals("nopos")) {
 				List<String> tran = myMap.syloPose();
-				siloPos = tran.get(tran.size()-1);
+				siloPos = tran.get(tran.size() - 1);
 			}
-			if(! ((AbstractDedaleAgent)myAgent).getCurrentPosition().equals(siloPos)) {
-				
-			
-				List<String> pl = myMap.getShortestPath(((AbstractDedaleAgent)myAgent).getCurrentPosition(), siloPos);
-				if (pl.size() >0) {
+			if (!((AbstractDedaleAgent) myAgent).getCurrentPosition().equals(siloPos)) {
+
+				List<String> pl = myMap.getShortestPath(((AbstractDedaleAgent) myAgent).getCurrentPosition(), siloPos);
+				if (pl.size() > 0) {
 					String nextNode = pl.get(0);
 					moveTo(nextNode);
-	
-				} 
-			}else {
+
+				}
+			} else {
 
 				message();
 			}
 
-			
 		}
 
 	}
+
 	private void message() {
 		ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 		msg.setSender(this.myAgent.getAID());
 		msg.setProtocol("TANKER");
-		String c  = this.myAgent.getName();
+		String c = this.myAgent.getName();
 		msg.setContent(c);
 		for (int i = 0; i < agentNames.size(); i++) {
 			if (!agentNames.get(i).equals(myAgent.getAID().getLocalName())) {
-				
+
 				msg.addReceiver(new AID(agentNames.get(i), AID.ISLOCALNAME));
 			}
 		}
 		((AbstractDedaleAgent) this.myAgent).sendMessage(msg);
 	}
+
 	@Override
 	public boolean ramasser(List<Couple<String, List<Couple<Observation, Integer>>>> lobs) {
 		return false;
@@ -422,84 +414,85 @@ class TankerBehaviour extends ExploMultiBehaviour{
 		// TODO Auto-generated method stub
 		return false;
 	}
+
 	public void setmap() {
 		((DummyTankerAgent) this.myAgent).setMap(myMap);
 	}
 
 }
+
 class TankerMultiReceiveBehaviour extends SimpleBehaviour {
 
 	private static final long serialVersionUID = 9088209402507795289L;
 
-	private boolean finished=false;
+	private boolean finished = false;
 	protected ExploAgent myagent;
 	/**
 	 * 
-	 * This behaviour is a one Shot.
-	 * It receives a message tagged with an inform performative, print the content in the console and destroy itlself
+	 * This behaviour is a one Shot. It receives a message tagged with an inform
+	 * performative, print the content in the console and destroy itlself
+	 * 
 	 * @param myagent
 	 */
 	protected MapRepresentation myMap;
-	
+
 	public TankerMultiReceiveBehaviour(final DummyTankerAgent myagent) {
 		super(myagent);
-		this.myagent=myagent;
+		this.myagent = myagent;
 	}
+
 	public void setMap(MapRepresentation map) {
 		myMap = map;
 	}
-	public void messageClassique(Couple<List<Case>,List<Couple<String,String>>> content) {
+
+	public void messageClassique(Couple<List<Case>, List<Couple<String, String>>> content) {
 		List<Case> nodes = content.getLeft();
-		
-		List<Couple<String,String>> edges = content.getRight();
+
+		List<Couple<String, String>> edges = content.getRight();
 		List<Case> open = new ArrayList();
 		List<Case> closed = new ArrayList();
-		for(int i =0; i<nodes.size();i++) {
-			
+		for (int i = 0; i < nodes.size(); i++) {
+
 			myMap.addNode(nodes.get(i));
-			
-			if(!nodes.get(i).is_open()){
+
+			if (!nodes.get(i).is_open()) {
 				closed.add(nodes.get(i));
-			}
-			else {
-				
+			} else {
+
 				open.add(nodes.get(i));
 
 			}
 		}
-		for(int i =0; i<edges.size();i++) {
+		for (int i = 0; i < edges.size(); i++) {
 			myMap.addEdge(edges.get(i).getLeft(), edges.get(i).getRight());
 		}
-		
+
 		myagent.maj(open, closed);
 
-			
 	}
-	
 
 	public synchronized void action() {
-		if(myMap!=null) {
-			if(!myMap.is_complete()) {
-				final MessageTemplate msgTemplate = MessageTemplate.MatchPerformative(ACLMessage.INFORM);			
+		if (myMap != null) {
+			if (!myMap.is_complete()) {
+				final MessageTemplate msgTemplate = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
 				final ACLMessage msg = this.myAgent.receive(msgTemplate);
 				if (msg != null) {
-					if(msg.getProtocol().equals("CLASSIQUE")) {
+					if (msg.getProtocol().equals("CLASSIQUE")) {
 						try {
-							Couple<List<Case>,List<Couple<String,String>>> c = (Couple<List<Case>,List<Couple<String,String>>>) msg.getContentObject();
-							if(((DummyTankerAgent) myAgent).explore()) {
+							Couple<List<Case>, List<Couple<String, String>>> c = (Couple<List<Case>, List<Couple<String, String>>>) msg
+									.getContentObject();
+							if (((DummyTankerAgent) myAgent).explore()) {
 								messageClassique(c);
 							}
-							
-	
+
 						} catch (UnreadableException e) {
-							
+
 							e.printStackTrace();
 						}
 					}
-					
-				}
-				else{
-						block();
+
+				} else {
+					block();
 				}
 			}
 		}
@@ -510,5 +503,3 @@ class TankerMultiReceiveBehaviour extends SimpleBehaviour {
 	}
 
 }
-
-

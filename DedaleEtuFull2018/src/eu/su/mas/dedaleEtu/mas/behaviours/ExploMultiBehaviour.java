@@ -93,7 +93,6 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 		}
 	}
 
-
 	public void sendClassicMessage() {
 		ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 		msg.setSender(this.myAgent.getAID());
@@ -136,29 +135,29 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 			serrure = h.get(2);
 			force = h.get(3);
 			ouvert = h.get(1) == 1;
-			
+
 		}
-		
+
 		c = new Case(lobs.get(0).getLeft(), tresor, serrure, force, false, ouvert);
-		
+
 		this.myMap.addNode(c);
-		
-		
+
 	}
-	public ArrayList<Integer> transfoLobs(List<Couple<Observation, Integer>> lobs){
+
+	public ArrayList<Integer> transfoLobs(List<Couple<Observation, Integer>> lobs) {
 		ArrayList<Integer> result = new ArrayList<Integer>();
 		result.add(0);
 		result.add(0);
 		result.add(0);
 		result.add(0);
-		for(int i =0 ; i<lobs.size();i++) {
-			if(lobs.get(i).getLeft() == Observation.GOLD) {
+		for (int i = 0; i < lobs.size(); i++) {
+			if (lobs.get(i).getLeft() == Observation.GOLD) {
 				result.set(0, lobs.get(i).getRight());
-			}else if(lobs.get(i).getLeft() == Observation.LOCKSTATUS) {
+			} else if (lobs.get(i).getLeft() == Observation.LOCKSTATUS) {
 				result.set(1, lobs.get(i).getRight());
-			}else if(lobs.get(i).getLeft() == Observation.LOCKPICKING) {
+			} else if (lobs.get(i).getLeft() == Observation.LOCKPICKING) {
 				result.set(2, lobs.get(i).getRight());
-			}else if(lobs.get(i).getLeft() == Observation.STRENGH) {
+			} else if (lobs.get(i).getLeft() == Observation.STRENGH) {
 				result.set(3, lobs.get(i).getRight());
 			}
 		}
@@ -179,9 +178,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 
 		setmap();
 		List<Couple<String, List<Couple<Observation, Integer>>>> lobs = ((AbstractDedaleAgent) this.myAgent).observe();
-		
-		
-		
+
 		if (!myMap.is_complete()) {
 			// 0) Retrieve the current position
 			String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
@@ -201,17 +198,17 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 
 		} else {
 			if (ramasser(lobs)) {
-				
+
 				List<String> treasure_list = myMap.getAlltreasureClosed();
 				String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
 				if (treasure_list.size() > 0) {
 
 					List<String> pl = this.myMap.getShortestPathToClosestNode(myPosition, treasure_list);
-					if (pl.size() >0) {
+					if (pl.size() > 0) {
 						String nextNode = pl.get(0);
-						((AbstractDedaleAgent)myAgent).moveTo(nextNode);
+						((AbstractDedaleAgent) myAgent).moveTo(nextNode);
 
-					} 
+					}
 				} else {
 					for (int i = 0; i < 10; i++) {
 						move_random();
@@ -231,16 +228,16 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 	protected boolean ramasser(List<Couple<String, List<Couple<Observation, Integer>>>> lobs) {
 		if (lobs.get(0).getRight().size() > 0) {
 			ArrayList<Integer> h = transfoLobs(lobs.get(0).getRight());
-			
+
 			if (h.get(0) > 0) {
 				if (h.get(1) != 1) {
 					((AbstractDedaleAgent) this.myAgent).openLock(Observation.GOLD);
-					
+
 				}
 				lobs = ((AbstractDedaleAgent) this.myAgent).observe();
-				h=transfoLobs(lobs.get(0).getRight());
-				if (h.get(1) == 1) {					
-					
+				h = transfoLobs(lobs.get(0).getRight());
+				if (h.get(1) == 1) {
+
 					addNodeMypos(lobs);
 					return true;
 
@@ -364,6 +361,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
 	public void setmap() {
 		((ExploreMultiAgent) this.myAgent).setMap(myMap);
 	}
