@@ -89,6 +89,7 @@ public class ExploMultiReceiveBehaviour extends MsgReceiver {
 									.getContentObject();
 							if (((ExploAgent) myAgent).explore()) {
 								messageClassique(c);
+								
 							}
 
 						} catch (UnreadableException e) {
