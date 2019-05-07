@@ -45,6 +45,7 @@ public class CollectMultiBehaviour extends SimpleBehaviour {
 	public CollectMultiBehaviour(final AbstractDedaleAgent myagent, MapRepresentation myMap, List<String> agentNames) {
 		super(myagent);
 		this.myMap = myMap;
+		this.myAgent=myagent;
 		this.openNodes = new ArrayList<String>();
 		this.closedNodes = new HashSet<String>();
 		this.agentNames = agentNames;
@@ -151,7 +152,6 @@ public class CollectMultiBehaviour extends SimpleBehaviour {
 		if (result.size() > 4) {
 			System.out.println(" bug bug bug \n \n \n \n \n bug");
 		}
-		System.out.println(result);
 		return result;
 	}
 
@@ -199,9 +199,9 @@ public class CollectMultiBehaviour extends SimpleBehaviour {
 				if (treasure_list.size() > 0) {
 
 					List<String> pl = this.myMap.getShortestPath(myPosition, treasure_list.get(0));
-					if (pl.size() > 3) {
+					if (pl.size() > 0) {
 						String nextNode = pl.get(0);
-						moveTo(nextNode);
+						moveTo(nextNode,2);
 
 					} else if (pl.size() > 0) {
 						String nextNode = pl.get(0);
@@ -232,10 +232,9 @@ public class CollectMultiBehaviour extends SimpleBehaviour {
 		if (gotosilo) {
 			List<String> pl = this.myMap
 					.getShortestPathToClosestNode(((AbstractDedaleAgent) myAgent).getCurrentPosition(), objectives);
-			System.out.println("gotosilo");
 			if (pl.size() > 0) {
 				String nextNode = pl.get(0);
-				moveTo(nextNode);
+				moveTo(nextNode,3);
 
 			} else {
 
@@ -245,6 +244,13 @@ public class CollectMultiBehaviour extends SimpleBehaviour {
 				if (x == 1 && !siloOnpose) {
 					move_random();
 					isDroping = false;
+				}else {
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 
 			}
@@ -261,8 +267,11 @@ public class CollectMultiBehaviour extends SimpleBehaviour {
 					lobs = ((AbstractDedaleAgent) this.myAgent).observe();
 					h = transfoLobs(lobs.get(0).getRight());
 					if (h.get(1) == 1) {
-						System.out.println("yoyoyoyoyoyo");
+						try {
 						((AbstractDedaleAgent) myAgent).pick();
+						}catch (Exception e){
+							
+						}
 
 						lobs = ((AbstractDedaleAgent) this.myAgent).observe();
 						gotosilo = true;
@@ -293,7 +302,7 @@ public class CollectMultiBehaviour extends SimpleBehaviour {
 			List<String> pl = this.myMap.getShortestPathToClosestNode(myPosition, openNodes);
 			if (pl.size() > 0) {
 				nextNode = pl.get(0);
-				moveTo(nextNode);
+				moveTo(nextNode,3);
 
 			}
 
@@ -366,10 +375,10 @@ public class CollectMultiBehaviour extends SimpleBehaviour {
 		return finished;
 	}
 
-	protected void moveTo(String id) {
+	protected void moveTo(String id,int n) {
 		boolean b = ((AbstractDedaleAgent) this.myAgent).moveTo(id);
 		if (!b) {
-			for (int i = 0; i < 3; i++) {
+			for (int i = 0; i < n; i++) {
 				move_random();
 			}
 

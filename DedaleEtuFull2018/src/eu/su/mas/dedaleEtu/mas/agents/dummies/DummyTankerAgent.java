@@ -286,19 +286,20 @@ class TankerBehaviour extends ExploMultiBehaviour {
 	private void message() {
 		ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 		msg.setSender(this.myAgent.getAID());
-		msg.setProtocol("TANKER");
 		String c = this.myAgent.getName();
+		msg.setProtocol("T");
 		msg.setContent(c);
 		for (int i = 0; i < agentNames.size(); i++) {
 			if (!agentNames.get(i).equals(myAgent.getAID().getLocalName())) {
-
-				msg.addReceiver(new AID(agentNames.get(i), AID.ISLOCALNAME));
+				msg.addReceiver(new AID(agentNames.get(i),AID.ISLOCALNAME));
 			}
 		}
+		
 		((AbstractDedaleAgent) this.myAgent).sendMessage(msg);
+
 	}
 
-	@Override
+
 	public boolean ramasser(List<Couple<String, List<Couple<Observation, Integer>>>> lobs) {
 		return false;
 	}

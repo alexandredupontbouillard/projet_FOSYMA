@@ -21,9 +21,10 @@ import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
+import jade.proto.states.MsgReceiver;
 import message.Case;
 
-public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
+public class ExploMultiReceiveBehaviour extends MsgReceiver {
 
 	private static final long serialVersionUID = 9088209402507795289L;
 
@@ -39,7 +40,6 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 	protected MapRepresentation myMap;
 
 	public ExploMultiReceiveBehaviour(final ExploAgent myagent) {
-		super((AbstractDedaleAgent) myagent);
 		this.myagent = myagent;
 	}
 
@@ -78,8 +78,9 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 	public synchronized void action() {
 		final MessageTemplate msgTemplate = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
 		final ACLMessage msg = this.myAgent.receive(msgTemplate);
+
 		if (myMap != null) {
-			if (!myMap.is_complete()) {
+			
 
 				if (msg != null) {
 					if (msg.getProtocol().equals("CLASSIQUE")) {
@@ -96,21 +97,22 @@ public class ExploMultiReceiveBehaviour extends SimpleBehaviour {
 						}
 					}
 
-				} else {
-					block();
-				}
-			} else if (msg != null) {
-				if (msg.getProtocol().equals("TANKER")) {
+				
+					else if (msg.getProtocol().equals("T")) {
+
 					if (((ExploAgent) myAgent).isDroping()) {
+						((CollectorMultiAgent) myAgent).siloOnpose();
+
 						((AbstractDedaleAgent) myAgent).emptyMyBackPack(msg.getContent());
 						((ExploAgent) myAgent).dropped();
-						((CollectorMultiAgent) myAgent).siloOnpose();
+						
 					}
+				}else {
+					System.out.println(msg.getProtocol());
 				}
 			}
 
 		}
-		block();
 	}
 
 	public boolean done() {

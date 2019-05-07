@@ -167,7 +167,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 	@Override
 	public synchronized void action() {
 		try {
-			Thread.sleep(100);
+			Thread.sleep(300);
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -197,35 +197,40 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 			}
 
 		} else {
-			if (ramasser(lobs)) {
-
-				List<String> treasure_list = myMap.getAlltreasureClosed();
-				String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
-				if (treasure_list.size() > 0) {
-
-					List<String> pl = this.myMap.getShortestPathToClosestNode(myPosition, treasure_list);
-					if (pl.size() > 0) {
-						String nextNode = pl.get(0);
-						((AbstractDedaleAgent) myAgent).moveTo(nextNode);
-
+			List<String> treasure_list = myMap.getAlltreasureClosed();
+			if(treasure_list.size()>0) {
+				if (ramasser(lobs,treasure_list.get(0))) {
+					
+					String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
+					
+					if (treasure_list.size() > 0) {
+						List<String> pl = this.myMap.getShortestPath(myPosition, treasure_list.get(0));
+						if (pl.size() > 0) {
+							String nextNode = pl.get(0);
+							moveTo(nextNode,2);
+	
+						} else if (pl.size() > 0) {
+							String nextNode = pl.get(0);
+							((AbstractDedaleAgent) myAgent).moveTo(nextNode);
+							}
+					} else {
+						for (int i = 0; i < 10; i++) {
+							move_random();
+						}
+	
+						finished = true;
 					}
-				} else {
-					for (int i = 0; i < 10; i++) {
-						move_random();
-					}
-
-					finished = true;
 				}
+	
+				majMapComplete(lobs);
+				sendClassicMessage();
+	
 			}
-
-			majMapComplete(lobs);
-			sendClassicMessage();
-
 		}
 
 	}
 
-	protected boolean ramasser(List<Couple<String, List<Couple<Observation, Integer>>>> lobs) {
+	protected boolean ramasser(List<Couple<String, List<Couple<Observation, Integer>>>> lobs, String obj) {
 		if (lobs.get(0).getRight().size() > 0) {
 			ArrayList<Integer> h = transfoLobs(lobs.get(0).getRight());
 
@@ -242,7 +247,11 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 					return true;
 
 				} else {
-					return false;
+					String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
+					if(myPosition.equals(obj)) {
+						return false;
+					}
+					return true;
 				}
 			}
 			return true;
@@ -262,7 +271,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 			List<String> pl = this.myMap.getShortestPathToClosestNode(myPosition, openNodes);
 			if (pl.size() > 0) {
 				nextNode = pl.get(0);
-				moveTo(nextNode);
+				moveTo(nextNode,3);
 
 			}
 
@@ -275,26 +284,13 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 		int serrure;
 		int force;
 		boolean ouvert;
-		Iterator<Couple<String, List<Couple<Observation, Integer>>>> iter = lobs.iterator();
-		while (iter.hasNext()) {
-			Couple<String, List<Couple<Observation, Integer>>> elem = iter.next();
-			String nodeId = elem.getLeft();
-			tresor = 0;
-			serrure = 0;
-			force = 0;
-			ouvert = false;
-			Case c;
-			if (elem.getRight().size() > 0) {
-				tresor = elem.getRight().get(0).getRight();
-				serrure = elem.getRight().get(3).getRight();
-				force = elem.getRight().get(2).getRight();
-				ouvert = elem.getRight().get(1).getRight() == 1;
+		String nodeId = lobs.get(0).getLeft();
+		
+		Case c;
+		List<Integer> l  = transfoLobs(lobs.get(0).getRight());
+		c = new Case(nodeId, l.get(0), l.get(2), l.get(3), false, l.get(1)==1);
+		this.myMap.addNode(c);
 
-			}
-			c = new Case(nodeId, tresor, serrure, force, false, ouvert);
-			this.myMap.addNode(c);
-
-		}
 	}
 
 	protected void majMap(List<Couple<String, List<Couple<Observation, Integer>>>> lobs, String myPosition) {
@@ -339,10 +335,10 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 		return finished;
 	}
 
-	protected void moveTo(String id) {
+	protected void moveTo(String id,int n) {
 		boolean b = ((AbstractDedaleAgent) this.myAgent).moveTo(id);
 		if (!b) {
-			for (int i = 0; i < 3; i++) {
+			for (int i = 0; i < n; i++) {
 				move_random();
 			}
 
